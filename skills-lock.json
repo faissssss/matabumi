@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "azure-ai": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "skillPath": "skills/azure-ai/SKILL.md",
+      "computedHash": "09d7b1f982b731532ffaef107f3cd9a922464ca8812093f454852a7668cfcfd6"
+    },
+    "azure-deploy": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "skillPath": "skills/azure-deploy/SKILL.md",
+      "computedHash": "d9030d755b4294c945123a099c5492abdf260e868f0e9aa0e0ec0e5b0ebe23f9"
+    },
+    "azure-diagnostics": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "skillPath": "skills/azure-diagnostics/SKILL.md",
+      "computedHash": "36f2073e999e1b13d204b537f765d47e04cf065886dde34edd9a1ccb9ce631e3"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "microsoft-foundry": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "skillPath": "skills/microsoft-foundry/SKILL.md",
+      "computedHash": "b713d34df9876f737a9319b030a460e99931a36f7c0ca60113ecec5a1d11f97d"
+    }
+  }
+}

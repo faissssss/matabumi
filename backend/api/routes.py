@@ -1,0 +1,73 @@
+"""
+REST API routes for the MataBumi dashboard.
+"""
+
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+
+from database.db import (
+    CAUSE_TYPES,
+    SEVERITY_LEVELS,
+    query_alerts,
+    query_national_stats,
+    query_province_stats,
+    query_trends,
+)
+
+router = APIRouter(prefix="/api", tags=["matabumi"])
+
+
+@router.get("/health")
+def health_check() -> dict:
+    return {"status": "ok", "service": "matabumi-api"}
+
+
+@router.get("/alerts")
+def get_alerts(
+    province: Optional[str] = None,
+    severity: Optional[str] = Query(default=None),
+    cause: Optional[str] = Query(default=None),
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    limit: int = Query(default=100, ge=1, le=500),
+) -> list[dict]:
+    if severity and severity not in SEVERITY_LEVELS:
+        raise HTTPException(status_code=400, detail="Invalid severity filter")
+
+    if cause and cause not in CAUSE_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid cause filter")
+
+    return query_alerts({
+        "province": province,
+        "severity": severity,
+        "cause": cause,
+        "start_date": start_date,
+        "end_date": end_date,
+        "limit": limit,
+    })
+
+
+@router.get("/provinces")
+def get_provinces() -> list[dict]:
+    return query_province_stats()
+
+
+@router.get("/stats")
+def get_stats() -> dict:
+    return query_national_stats()
+
+
+@router.get("/trends")
+def get_trends(province: Optional[str] = None) -> list[dict]:
+    return query_trends(province)
+
+
+@router.get("/forecast")
+def get_forecast(province: Optional[str] = None) -> dict:
+    return {
+        "province": province,
+        "forecast_available": False,
+        "message": "Forecasting is reserved for a future MataBumi release.",
+        "next_period_area_ha": None,
+    }
