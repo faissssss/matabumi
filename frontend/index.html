@@ -1,46 +1,19 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/assets/matabumi-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="MataBumi - Indonesia Deforestation Monitoring Dashboard. Real-time tracking and analysis of deforestation events across Indonesian provinces." />
-    <meta name="keywords" content="deforestation, Indonesia, monitoring, forest, environment, NDVI, satellite imagery" />
-    <meta name="author" content="MataBumi" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="MataBumi - Indonesia Deforestation Monitoring" />
-    <meta property="og:description" content="Real-time tracking and analysis of deforestation events across Indonesian provinces" />
-    <meta property="og:image" content="/assets/matabumi-logo.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:title" content="MataBumi - Indonesia Deforestation Monitoring" />
-    <meta property="twitter:description" content="Real-time tracking and analysis of deforestation events across Indonesian provinces" />
-    <meta property="twitter:image" content="/assets/matabumi-logo.png" />
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
     <title>MataBumi - Indonesia Deforestation Monitoring</title>
+    <style>
+      body { margin: 0; padding: 0; background: #171717; }
+      #root { min-height: 100vh; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      // Initialize theme before React loads
-      const theme = localStorage.getItem('matabumi-theme') || 'dark';
-      document.documentElement.classList.add(theme);
-      
-      // Catch and log errors
-      window.addEventListener('error', function(e) {
-        console.error('Global error:', e.error);
-        document.getElementById('root').innerHTML = '<div style="color: white; padding: 20px; font-family: sans-serif;"><h1>Error Loading App</h1><p>' + e.message + '</p><p>Check console for details (F12)</p></div>';
-      });
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+</html>
 </html>
 

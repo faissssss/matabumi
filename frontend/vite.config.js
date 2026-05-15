@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [react()],
+    base: '/',
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
@@ -15,6 +16,8 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         sourcemap: false,
+        minify: 'esbuild',
+        target: 'es2015',
         rollupOptions: {
             output: {
                 manualChunks: {
