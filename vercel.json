@@ -1,43 +1,5 @@
 {
-  "version": 2,
-  "name": "matabumi-deforestation-monitoring",
-  "builds": [
-    {
-      "src": "backend/api/main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "frontend/dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/api/main.py"
-    },
-    {
-      "src": "/api/thumbnails/(.*)",
-      "dest": "/outputs/thumbnails/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/$1"
-    }
-  ],
-  "env": {
-    "NDVI_CHANGE_THRESHOLD": "0.2",
-    "MINIMUM_ALERT_AREA": "50",
-    "CLOUD_COVER_MAX": "15",
-    "CONFIDENCE_THRESHOLD": "0.6"
-  },
-  "functions": {
-    "backend/api/main.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  }
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": "vite"
 }
