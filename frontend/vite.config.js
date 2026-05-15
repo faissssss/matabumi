@@ -1,6 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
     plugins: [react()],
     resolve: {
@@ -8,9 +12,17 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    test: {
-        environment: 'jsdom',
-        setupFiles: './src/test/setup.ts',
-        globals: true,
+    build: {
+        outDir: 'dist',
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'react-vendor': ['react', 'react-dom'],
+                    'chart-vendor': ['chart.js', 'react-chartjs-2'],
+                    'map-vendor': ['leaflet', 'react-leaflet'],
+                },
+            },
+        },
     },
 });
