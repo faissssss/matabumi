@@ -11,33 +11,66 @@ export function thumbnailUrl(path?: string | null) {
   return `${API_BASE_URL}${path}`;
 }
 
+// Mock data for when backend is not available
+const MOCK_STATS: NationalStats = {
+  total_events: 0,
+  total_area_ha: 0,
+  critical_events: 0,
+  high_events: 0,
+  moderate_events: 0,
+  low_events: 0,
+  protected_area_events: 0,
+};
+
 export async function fetchAlerts(filters: Filters): Promise<Alert[]> {
-  const response = await api.get<Alert[]>('/api/alerts', {
-    params: {
-      province: filters.province || undefined,
-      severity: filters.severities.length === 1 ? filters.severities[0] : undefined,
-      cause: filters.causes.length === 1 ? filters.causes[0] : undefined,
-      start_date: filters.startDate || undefined,
-      end_date: filters.endDate || undefined,
-      limit: 500,
-    },
-  });
-  return response.data;
+  try {
+    const response = await api.get<Alert[]>('/api/alerts', {
+      params: {
+        province: filters.province || undefined,
+        severity: filters.severities.length === 1 ? filters.severities[0] : undefined,
+        cause: filters.causes.length === 1 ? filters.causes[0] : undefined,
+        start_date: filters.startDate || undefined,
+        end_date: filters.endDate || undefined,
+        limit: 500,
+      },
+      timeout: 5000,
+    });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend not available, using empty data:', error);
+    return [];
+  }
 }
 
 export async function fetchStats(): Promise<NationalStats> {
-  const response = await api.get<NationalStats>('/api/stats');
-  return response.data;
+  try {
+    const response = await api.get<NationalStats>('/api/stats', { timeout: 5000 });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend not available, using mock stats:', error);
+    return MOCK_STATS;
+  }
 }
 
 export async function fetchProvinceStats(): Promise<ProvinceStats[]> {
-  const response = await api.get<ProvinceStats[]>('/api/provinces');
-  return response.data;
+  try {
+    const response = await api.get<ProvinceStats[]>('/api/provinces', { timeout: 5000 });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend not available, using empty province stats:', error);
+    return [];
+  }
 }
 
 export async function fetchTrends(province?: string): Promise<TrendPoint[]> {
-  const response = await api.get<TrendPoint[]>('/api/trends', {
-    params: { province: province || undefined },
-  });
-  return response.data;
+  try {
+    const response = await api.get<TrendPoint[]>('/api/trends', {
+      params: { province: province || undefined },
+      timeout: 5000,
+    });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend not available, using empty trends:', error);
+    return [];
+  }
 }
