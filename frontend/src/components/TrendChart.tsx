@@ -1,19 +1,6 @@
-import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-} from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { causeLabels, translations } from '../i18n';
 import type { Alert, Language, NationalStats, TrendPoint } from '../types';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 interface Props {
   trends: TrendPoint[];
@@ -24,56 +11,84 @@ interface Props {
 
 export default function TrendChart({ trends, stats, alerts, language }: Props) {
   const t = translations[language];
-  const trendLabels = trends.map((point) => point.month);
-  const trendValues = trends.map((point) => point.area_ha);
-  const causeKeys = Object.keys(stats?.by_cause ?? {}) as Array<keyof NonNullable<typeof stats>['by_cause']>;
+  
+  // Prepare trend data for Recharts
+  const trendData = trends.map((point) => ({
+    month: point.month,
+    area: point.area_ha,
+  }));
 
-  const byCause = {
-    labels: causeKeys.map((cause) => causeLabels[language][cause]),
-    datasets: [
-      {
-        label: t.alerts,
-        data: causeKeys.map((cause) => stats?.by_cause[cause] ?? 0),
-        backgroundColor: '#b56b3f',
-      },
-    ],
-  };
+  // Prepare cause data for Recharts
+  const causeKeys = Object.keys(stats?.by_cause ?? {}) as Array<keyof NonNullable<typeof stats>['by_cause']>;
+  const causeData = causeKeys.map((cause) => ({
+    name: causeLabels[language][cause],
+    value: stats?.by_cause[cause] ?? 0,
+  }));
 
   return (
-    <section className="grid gap-4 xl:grid-cols-2">
-      <div className="border border-stone-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-stone-800">{t.trends}</h2>
-        <div className="mt-3 h-64">
-          <Line
-            data={{
-              labels: trendLabels.length ? trendLabels : ['No data'],
-              datasets: [
-                {
-                  label: t.hectares,
-                  data: trendValues.length ? trendValues : [0],
-                  borderColor: '#0f3d31',
-                  backgroundColor: 'rgba(15,61,49,0.12)',
-                  tension: 0.25,
-                },
-              ],
-            }}
-            options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }}
-          />
-        </div>
+    <section className="grid gap-6 xl:grid-cols-2">
+      {/* Trend Chart */}
+      <div className="rounded-xl bg-glass-surface p-6 backdrop-blur-xl">
+        <h2 className="mb-4 text-sm font-semibold text-mist-white">{t.trends}</h2>
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={trendData.length ? trendData : [{ month: 'No data', area: 0 }]}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis 
+              dataKey="month" 
+              stroke="rgba(240,244,241,0.6)"
+              style={{ fontSize: '12px' }}
+            />
+            <YAxis 
+              stroke="rgba(240,244,241,0.6)"
+              style={{ fontSize: '12px' }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(13, 31, 21, 0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '8px',
+                color: '#F0F4F1',
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="area"
+              stroke="#1A4D2E"
+              strokeWidth={2}
+              dot={{ fill: '#1A4D2E', r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
-      <div className="border border-stone-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-stone-800">{t.cause}</h2>
-        <div className="mt-3 h-64">
-          <Bar
-            data={byCause}
-            options={{
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
-              scales: { y: { beginAtZero: true } },
-            }}
-          />
-        </div>
-        <p className="mt-3 text-xs text-stone-500">
+
+      {/* Cause Chart */}
+      <div className="rounded-xl bg-glass-surface p-6 backdrop-blur-xl">
+        <h2 className="mb-4 text-sm font-semibold text-mist-white">{t.cause}</h2>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={causeData.length ? causeData : [{ name: 'No data', value: 0 }]}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis 
+              dataKey="name" 
+              stroke="rgba(240,244,241,0.6)"
+              style={{ fontSize: '12px' }}
+            />
+            <YAxis 
+              stroke="rgba(240,244,241,0.6)"
+              style={{ fontSize: '12px' }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(13, 31, 21, 0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '8px',
+                color: '#F0F4F1',
+              }}
+            />
+            <Bar dataKey="value" fill="#1A4D2E" radius={[8, 8, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+        <p className="mt-4 text-xs text-mist-white/60">
           {alerts.length.toLocaleString(language)} {t.alerts.toLowerCase()}
         </p>
       </div>

@@ -33,11 +33,12 @@ class FakeBand:
 
 
 class FakeComputed:
-    shape = (2, 1, 2, 2)
+    shape = (2, 1, 10, 10)
+    size = 200
 
     def __getitem__(self, key):
         band = key[0]
-        return FakeBand(np.full((2, 2), band + 1, dtype=np.float32))
+        return FakeBand(np.full((10, 10), band + 1, dtype=np.float32))
 
 
 class FakeStack:
@@ -75,6 +76,9 @@ def test_fetch_imagery_filters_and_selects_lowest_cloud(monkeypatch):
     assert np.all(nir == 1)
     assert np.all(red == 2)
     assert fake_stackstac.calls[0]["resolution"] == 60
+    assert fake_stackstac.calls[0]["bounds_latlon"] == [0, 0, 1, 1]
+    assert fake_stackstac.calls[0]["epsg"] == 3857
+    assert fake_stackstac.calls[0]["rescale"] is False
 
 
 def test_fetch_imagery_retries_with_25_cloud_cover(monkeypatch):

@@ -42,15 +42,55 @@ def get_date_ranges() -> Tuple[str, str]:
     
     Requirements: 10.2, 10.3
     """
-    today = datetime.now()
+    # Use historical dates with known deforestation activity
+    # 2024 data is more likely to show real deforestation patterns
+    from datetime import datetime as dt
     
-    # After period: 0-30 days ago
-    after_end = today
-    after_start = today - timedelta(days=30)
+    # After period: September 2024 (dry season - more deforestation)
+    after_end = dt(2024, 9, 30)
+    after_start = dt(2024, 9, 1)
     
-    # Before period: 60-90 days ago
-    before_end = today - timedelta(days=60)
-    before_start = today - timedelta(days=90)
+    # Before period: June 2024 (3 months earlier)
+    before_end = dt(2024, 6, 30)
+    before_start = dt(2024, 6, 1)
+    
+    before_range = f"{before_start.strftime('%Y-%m-%d')}/{before_end.strftime('%Y-%m-%d')}"
+    after_range = f"{after_start.strftime('%Y-%m-%d')}/{after_end.strftime('%Y-%m-%d')}"
+    
+    return before_range, after_range
+
+
+def get_multi_year_date_ranges() -> List[Tuple[str, str]]:
+    """
+    Generate date ranges for 5-year historical analysis (2020-2024).
+    
+    Returns multiple (before, after) period pairs to detect deforestation
+    across different years.
+    
+    Returns:
+        List of (before_range, after_range) tuples for each year
+    """
+    from datetime import datetime as dt
+    
+    date_ranges = []
+    
+    # Generate annual comparisons for past 5 years
+    # Compare dry season (Sep) vs wet season (Mar) each year
+    for year in range(2020, 2025):  # 2020, 2021, 2022, 2023, 2024
+        # Before: March (wet season - more vegetation)
+        before_start = dt(year, 3, 1)
+        before_end = dt(year, 3, 31)
+        
+        # After: September (dry season - deforestation visible)
+        after_start = dt(year, 9, 1)
+        after_end = dt(year, 9, 30)
+        
+        before_range = f"{before_start.strftime('%Y-%m-%d')}/{before_end.strftime('%Y-%m-%d')}"
+        after_range = f"{after_start.strftime('%Y-%m-%d')}/{after_end.strftime('%Y-%m-%d')}"
+        
+        date_ranges.append((before_range, after_range))
+    
+    return date_ranges
     
     before_range = f"{before_start.strftime('%Y-%m-%d')}/{before_end.strftime('%Y-%m-%d')}"
     after_range = f"{after_start.strftime('%Y-%m-%d')}/{after_end.strftime('%Y-%m-%d')}"

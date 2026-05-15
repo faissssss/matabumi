@@ -278,7 +278,7 @@ The implementation follows a bottom-up approach: core detection algorithms first
     - Test error handling and recovery
     - Test parallel execution
 
-- [ ] 12. Checkpoint - Ensure pipeline runs end-to-end
+- [x] 12. Checkpoint - Ensure pipeline runs end-to-end
   - Run pipeline on a subset of provinces (e.g., 2-3 provinces)
   - Verify imagery fetching works
   - Verify NDVI calculation and change detection
@@ -391,7 +391,7 @@ The implementation follows a bottom-up approach: core detection algorithms first
     - Test LanguageToggle switches text
     - Test ImpactCalculator updates on slider change
 
-- [ ] 15. Checkpoint - Ensure frontend and backend integration works
+- [x] 15. Checkpoint - Ensure frontend and backend integration works
   - Start FastAPI backend locally
   - Start React frontend dev server
   - Verify API endpoints return data
@@ -402,27 +402,27 @@ The implementation follows a bottom-up approach: core detection algorithms first
   - Ensure all tests pass, ask the user if questions arise
 
 - [ ] 16. Prepare for deployment
-  - [ ] 16.1 Create deployment configuration
+  - [x] 16.1 Create deployment configuration
     - Create `vercel.json` for Vercel deployment
     - Configure FastAPI as serverless function
     - Configure React build output directory
     - Set environment variables in Vercel dashboard
     - _Requirements: Design Section 3_
   
-  - [ ] 16.2 Add documentation
+  - [x] 16.2 Add documentation
     - Create `README.md` with project overview, setup instructions, and usage
     - Document environment variables in `.env.example`
     - Document API endpoints in `API.md`
     - Document deployment process in `DEPLOYMENT.md`
     - _Requirements: 15.3_
   
-  - [ ] 16.3 Commit database and thumbnails to repository
+  - [x] 16.3 Commit database and thumbnails to repository
     - Ensure `backend/database/matabumi.db` is committed
     - Ensure `outputs/thumbnails/` directory with images is committed
     - Verify `.gitignore` doesn't exclude these files
     - _Requirements: Design Section 3_
 
-- [ ] 17. Final checkpoint - Complete system validation
+- [x] 17. Final checkpoint - Complete system validation
   - Run full pipeline on all 38 provinces (or subset for testing)
   - Verify database is populated with alerts
   - Verify thumbnails are generated

@@ -5,6 +5,9 @@ and hero image visualization generation.
 """
 
 import numpy as np
+import matplotlib
+# Use non-interactive backend for thread safety
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 from typing import Tuple

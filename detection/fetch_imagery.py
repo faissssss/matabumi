@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 # Environment configuration
 CLOUD_COVER_MAX = float(os.getenv("CLOUD_COVER_MAX", "15"))
+REQUIRED_BANDS = ("B08", "B04")
+MIN_USABLE_PIXELS = 10  # Reduced threshold for smaller test areas
 
 
 def get_catalog() -> pystac_client.Client:
@@ -40,6 +42,46 @@ def get_catalog() -> pystac_client.Client:
     )
     
     return catalog
+
+
+def _has_required_bands(item) -> bool:
+    """Return True when a STAC item exposes the bands needed for NDVI."""
+    return all(asset in getattr(item, "assets", {}) for asset in REQUIRED_BANDS)
+
+
+def _extract_band(data, band_name: str, band_index: int) -> np.ndarray:
+    """
+    Extract a single band from a computed stackstac DataArray.
+
+    stackstac returns xarray data with named dimensions, but older tests and
+    some array-like objects only expose positional indexing. Prefer names when
+    available and fall back to the two common 4D layouts.
+    """
+    if hasattr(data, "sel") and "band" in getattr(data, "dims", ()):
+        band = data.sel(band=band_name)
+        if "time" in getattr(band, "dims", ()):
+            band = band.isel(time=0)
+        values = band.values if hasattr(band, "values") else band
+        return np.asarray(values)
+
+    shape = getattr(data, "shape", None)
+    if shape is None:
+        raise ValueError("Computed imagery does not expose a shape")
+
+    if len(shape) == 4:
+        if shape[0] == len(REQUIRED_BANDS):  # (band, time, y, x)
+            band = data[band_index, 0, :, :]
+        elif shape[1] == len(REQUIRED_BANDS):  # (time, band, y, x)
+            band = data[0, band_index, :, :]
+        else:
+            raise ValueError(f"Cannot determine band dimension from shape: {shape}")
+    elif len(shape) == 3 and shape[0] == len(REQUIRED_BANDS):  # (band, y, x)
+        band = data[band_index, :, :]
+    else:
+        raise ValueError(f"Unexpected data shape: {shape}")
+
+    values = band.values if hasattr(band, "values") else band
+    return np.asarray(values)
 
 
 def fetch_imagery(
@@ -91,6 +133,8 @@ def fetch_imagery(
             )
             items = list(search.items())
         
+        items = [item for item in items if _has_required_bands(item)]
+
         # If still no items, return None
         if len(items) == 0:
             logger.warning(f"No usable imagery found for bbox {bbox} in date range {date_range}")
@@ -105,23 +149,37 @@ def fetch_imagery(
         # Stack bands
         stack = stackstac.stack(
             [selected_item],
-            assets=["B08", "B04"],  # NIR (Band 8), Red (Band 4)
-            bounds=bbox,
+            assets=list(REQUIRED_BANDS),  # NIR (Band 8), Red (Band 4)
+            bounds_latlon=bbox,
+            epsg=3857,  # Meter-based CRS so resolution is interpreted in meters
             resolution=resolution,
-            dtype=np.float32
+            dtype="float64",
+            rescale=False,
         )
         
         # Compute arrays
         data = stack.compute()
         
-        # Check if bands exist
-        if data.shape[0] < 2:
-            logger.warning("Missing bands in imagery")
+        # Check if we have data
+        if getattr(data, "size", 0) == 0:
+            logger.warning("Empty data array returned")
             return None, None
         
+        logger.info(f"Data shape: {tuple(data.shape)}")
+
         # Extract NIR (Band 8) and Red (Band 4)
-        nir = data[0, 0, :, :].values  # First band, first time
-        red = data[1, 0, :, :].values  # Second band, first time
+        try:
+            nir = _extract_band(data, "B08", 0)
+            red = _extract_band(data, "B04", 1)
+        except ValueError as exc:
+            logger.warning(str(exc))
+            return None, None
+        
+        # Check if we have reasonable data size
+        if nir.size < MIN_USABLE_PIXELS or red.size < MIN_USABLE_PIXELS:
+            logger.warning(f"Data too small: NIR={nir.shape}, Red={red.shape}. "
+                          f"This may be due to large bbox and coarse resolution.")
+            return None, None
         
         return nir, red
         

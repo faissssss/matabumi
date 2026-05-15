@@ -2,6 +2,137 @@
 @tailwind components;
 @tailwind utilities;
 
+/* MataBumi 2.0 Theme Variables */
+:root {
+  /* Dark Mode (Default) */
+  --bg: #0D1F15;
+  --surface: rgba(255, 255, 255, 0.06);
+  --text: #F0F4F1;
+  --text-secondary: rgba(240, 244, 241, 0.6);
+  --canopy: #1A4D2E;
+  --alert: #EA580C;
+}
+
+:root.light {
+  /* Light Mode */
+  --bg: #F4F7F5;
+  --surface: rgba(255, 255, 255, 0.85);
+  --text: #0D1F15;
+  --text-secondary: rgba(13, 31, 21, 0.6);
+  --canopy: #1A4D2E;
+  --alert: #C2410C;
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+code {
+  font-family: 'IBM Plex Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Glassmorphism Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Map Container */
+.leaflet-container {
+  background: #0D1F15 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.light .leaflet-container {
+  background: #F4F7F5 !important;
+}
+
+/* Leaflet Controls Styling */
+.leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(12px);
+  color: #F0F4F1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.light .leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #0D1F15 !important;
+}
+
+/* Leaflet Popup Styling */
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(12px);
+  color: #F0F4F1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0D1F15 !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.light .leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
 :root {
   color: #17231f;
   background: #f7f5ef;

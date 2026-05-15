@@ -1,4 +1,6 @@
-import { Filter, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Filter, ShieldAlert, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { causeLabels, severityLabels, translations } from '../i18n';
 import { PROVINCES } from '../data/provinces';
 import type { Cause, Filters, Language, NationalStats, ProvinceStats, Severity } from '../types';
@@ -20,138 +22,189 @@ function toggleValue<T extends string>(values: T[], value: T) {
 
 export default function Sidebar({ filters, language, stats, provinceStats, onFilterChange }: Props) {
   const t = translations[language];
+  const [severityOpen, setSeverityOpen] = useState(true);
+  const [causeOpen, setCauseOpen] = useState(true);
+  const [provinceSearch, setProvinceSearch] = useState('');
+
+  const filteredProvinces = PROVINCES.filter(province =>
+    province.toLowerCase().includes(provinceSearch.toLowerCase())
+  );
 
   return (
-    <aside className="flex h-full flex-col gap-5 overflow-y-auto border-r border-stone-200 bg-white/90 p-5 backdrop-blur">
-      <section className="grid grid-cols-2 gap-3">
-        <div className="border border-stone-200 bg-paper p-3">
-          <p className="text-xs font-medium text-stone-500">{t.hectares}</p>
-          <p className="mt-1 text-2xl font-semibold text-canopy">
-            {(stats?.total_area_ha ?? 0).toLocaleString(language)}
-          </p>
-        </div>
-        <div className="border border-stone-200 bg-paper p-3">
-          <p className="text-xs font-medium text-stone-500">{t.alerts}</p>
-          <p className="mt-1 text-2xl font-semibold text-canopy">
-            {stats?.total_events ?? 0}
-          </p>
-        </div>
-        <div className="border border-stone-200 bg-paper p-3">
-          <p className="text-xs font-medium text-stone-500">{t.critical}</p>
-          <p className="mt-1 text-2xl font-semibold text-ember">
-            {stats?.by_severity.critical ?? 0}
-          </p>
-        </div>
-        <div className="border border-stone-200 bg-paper p-3">
-          <p className="text-xs font-medium text-stone-500">{t.protected}</p>
-          <p className="mt-1 flex items-center gap-2 text-2xl font-semibold text-earth">
-            <ShieldAlert size={20} />
-            {stats?.protected_zone_breaches ?? 0}
-          </p>
-        </div>
-      </section>
+    <aside className="flex h-full flex-col gap-4 overflow-y-auto p-5">
+      {/* Filters Header */}
+      <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+        <Filter size={18} className="text-canopy-green" />
+        <h2 className="text-sm font-semibold text-mist-white">{t.filters}</h2>
+      </div>
 
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-stone-800">
-          <Filter size={17} />
-          {t.filters}
-        </h2>
-
-        <label className="block text-xs font-semibold text-stone-600">
+      {/* Province Filter with Search */}
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold text-mist-white/80">
           {t.province}
-          <select
-            className="mt-2 h-10 w-full border border-stone-300 bg-white px-3 text-sm text-stone-800"
-            value={filters.province}
-            onChange={(event) => onFilterChange({ ...filters, province: event.target.value })}
-          >
-            <option value="">{t.allProvinces}</option>
-            {PROVINCES.map((province) => (
-              <option key={province} value={province}>
-                {province}
-              </option>
-            ))}
-          </select>
         </label>
-
-        <div>
-          <p className="text-xs font-semibold text-stone-600">{t.severity}</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {severities.map((severity) => (
-              <label key={severity} className="flex items-center gap-2 text-sm text-stone-700">
-                <input
-                  type="checkbox"
-                  checked={filters.severities.includes(severity)}
-                  onChange={() =>
-                    onFilterChange({
-                      ...filters,
-                      severities: toggleValue(filters.severities, severity),
-                    })
-                  }
-                />
-                {severityLabels[language][severity]}
-              </label>
-            ))}
-          </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-mist-white/40" size={16} />
+          <input
+            type="text"
+            placeholder="Search province..."
+            value={provinceSearch}
+            onChange={(e) => setProvinceSearch(e.target.value)}
+            className="w-full rounded-lg bg-white/5 py-2 pl-10 pr-3 text-sm text-mist-white placeholder-mist-white/40 focus:outline-none focus:ring-2 focus:ring-canopy-green"
+          />
         </div>
+        <select
+          className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-mist-white focus:outline-none focus:ring-2 focus:ring-canopy-green"
+          value={filters.province}
+          onChange={(event) => onFilterChange({ ...filters, province: event.target.value })}
+        >
+          <option value="">{t.allProvinces}</option>
+          {filteredProvinces.map((province) => (
+            <option key={province} value={province}>
+              {province}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <div>
-          <p className="text-xs font-semibold text-stone-600">{t.cause}</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {causes.map((cause) => (
-              <label key={cause} className="flex items-center gap-2 text-sm text-stone-700">
-                <input
-                  type="checkbox"
-                  checked={filters.causes.includes(cause)}
-                  onChange={() =>
-                    onFilterChange({ ...filters, causes: toggleValue(filters.causes, cause) })
-                  }
-                />
-                {causeLabels[language][cause]}
-              </label>
-            ))}
-          </div>
-        </div>
+      {/* Severity Filter - Collapsible */}
+      <div className="space-y-2">
+        <button
+          onClick={() => setSeverityOpen(!severityOpen)}
+          className="flex w-full items-center justify-between text-xs font-semibold text-mist-white/80 transition-colors hover:text-mist-white"
+        >
+          <span>{t.severity}</span>
+          <motion.div
+            animate={{ rotate: severityOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronDown size={16} />
+          </motion.div>
+        </button>
+        <AnimatePresence>
+          {severityOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-2 rounded-lg bg-white/5 p-3">
+                {severities.map((severity) => (
+                  <label
+                    key={severity}
+                    className="flex cursor-pointer items-center gap-2 text-sm text-mist-white/90 transition-colors hover:text-mist-white"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.severities.includes(severity)}
+                      onChange={() =>
+                        onFilterChange({
+                          ...filters,
+                          severities: toggleValue(filters.severities, severity),
+                        })
+                      }
+                      className="h-4 w-4 rounded border-white/20 bg-white/5 text-canopy-green focus:ring-2 focus:ring-canopy-green"
+                    />
+                    <span className="flex-1">{severityLabels[language][severity]}</span>
+                    <span className="text-xs text-mist-white/60">
+                      {stats?.by_severity[severity] ?? 0}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-        <div>
-          <p className="text-xs font-semibold text-stone-600">{t.dateRange}</p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <input
-              type="date"
-              className="h-10 min-w-0 border border-stone-300 px-2 text-sm"
-              value={filters.startDate}
-              onChange={(event) => onFilterChange({ ...filters, startDate: event.target.value })}
-            />
-            <input
-              type="date"
-              className="h-10 min-w-0 border border-stone-300 px-2 text-sm"
-              value={filters.endDate}
-              onChange={(event) => onFilterChange({ ...filters, endDate: event.target.value })}
-            />
-          </div>
-        </div>
-      </section>
+      {/* Cause Filter - Collapsible */}
+      <div className="space-y-2">
+        <button
+          onClick={() => setCauseOpen(!causeOpen)}
+          className="flex w-full items-center justify-between text-xs font-semibold text-mist-white/80 transition-colors hover:text-mist-white"
+        >
+          <span>{t.cause}</span>
+          <motion.div
+            animate={{ rotate: causeOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronDown size={16} />
+          </motion.div>
+        </button>
+        <AnimatePresence>
+          {causeOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-2 rounded-lg bg-white/5 p-3">
+                {causes.map((cause) => (
+                  <label
+                    key={cause}
+                    className="flex cursor-pointer items-center gap-2 text-sm text-mist-white/90 transition-colors hover:text-mist-white"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.causes.includes(cause)}
+                      onChange={() =>
+                        onFilterChange({
+                          ...filters,
+                          causes: toggleValue(filters.causes, cause),
+                        })
+                      }
+                      className="h-4 w-4 rounded border-white/20 bg-white/5 text-canopy-green focus:ring-2 focus:ring-canopy-green"
+                    />
+                    <span className="flex-1">{causeLabels[language][cause]}</span>
+                    <span className="text-xs text-mist-white/60">
+                      {stats?.by_cause[cause] ?? 0}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      <section>
-        <h2 className="text-sm font-semibold text-stone-800">{t.provinces}</h2>
-        <div className="mt-2 max-h-64 overflow-y-auto border border-stone-200">
-          {PROVINCES.map((province) => {
-            const row = provinceStats.find((item) => item.province === province);
-            return (
-              <button
-                type="button"
-                key={province}
-                onClick={() => onFilterChange({ ...filters, province })}
-                className={`flex w-full items-center justify-between border-b border-stone-100 px-3 py-2 text-left text-sm last:border-b-0 ${
-                  filters.province === province ? 'bg-canopy text-white' : 'hover:bg-stone-50'
-                }`}
-              >
-                <span>{province}</span>
-                <span className="font-semibold">{row?.event_count ?? 0}</span>
-              </button>
-            );
-          })}
+      {/* Date Range Filter */}
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold text-mist-white/80">
+          {t.dateRange || 'Date Range'}
+        </label>
+        <div className="space-y-2">
+          <input
+            type="date"
+            value={filters.startDate}
+            onChange={(e) => onFilterChange({ ...filters, startDate: e.target.value })}
+            className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-mist-white focus:outline-none focus:ring-2 focus:ring-canopy-green"
+          />
+          <input
+            type="date"
+            value={filters.endDate}
+            onChange={(e) => onFilterChange({ ...filters, endDate: e.target.value })}
+            className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-mist-white focus:outline-none focus:ring-2 focus:ring-canopy-green"
+          />
         </div>
-      </section>
+      </div>
+
+      {/* Reset Filters */}
+      <button
+        onClick={() => onFilterChange({
+          province: '',
+          severities: ['critical', 'high', 'moderate', 'low'],
+          causes: ['logging', 'plantation', 'mining', 'fire', 'unknown'],
+          startDate: '',
+          endDate: '',
+        })}
+        className="mt-auto rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-mist-white transition-colors hover:bg-white/10"
+      >
+        Reset Filters
+      </button>
     </aside>
   );
 }
