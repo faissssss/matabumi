@@ -1,0 +1,36 @@
+# Python and backend
+*.py
+backend/
+pipeline/
+detection/
+database/
+tests/
+*.db
+*.db-journal
+requirements.txt
+
+# Data and outputs
+data/
+outputs/
+test_artifacts/
+
+# Documentation
+*.md
+!README.md
+
+# Config and temp files
+.env
+.env.local
+.pytest_cache/
+.hypothesis/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+.kiro/
+.agents/
+
+# Plans
+plans/
