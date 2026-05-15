@@ -39,22 +39,30 @@ export default function App() {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasBackend, setHasBackend] = useState(true);
+  const [hasBackend, setHasBackend] = useState(false); // Default to false to avoid issues
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [currentView, setCurrentView] = useState<PageView>('dashboard');
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('matabumi-theme');
-    return (saved as Theme) || 'dark';
+    try {
+      const saved = localStorage.getItem('matabumi-theme');
+      return (saved as Theme) || 'dark';
+    } catch {
+      return 'dark';
+    }
   });
   
   const t = translations[language];
 
   // Apply theme to document
   useEffect(() => {
-    document.documentElement.classList.remove('dark', 'light');
-    document.documentElement.classList.add(theme);
-    localStorage.setItem('matabumi-theme', theme);
+    try {
+      document.documentElement.classList.remove('dark', 'light');
+      document.documentElement.classList.add(theme);
+      localStorage.setItem('matabumi-theme', theme);
+    } catch (e) {
+      console.warn('Failed to apply theme:', e);
+    }
   }, [theme]);
 
   useEffect(() => {
@@ -200,34 +208,38 @@ export default function App() {
           {/* Main View - Map, Table, or Analytics */}
           <div className="flex-1 overflow-hidden rounded-xl border border-border shadow-2xl">
             {viewMode === 'map' && (
-              filteredAlerts.length > 0 ? (
-                <DeforestationMap
-                  alerts={filteredAlerts}
-                  selectedProvince={filters.province}
-                  language={language}
-                  onSelectAlert={setSelectedAlert}
-                  theme={theme}
-                />
-              ) : (
-                <EmptyState 
-                  language={language} 
-                  type={hasBackend ? 'no-data' : 'no-backend'}
-                />
-              )
+              <>
+                {filteredAlerts.length > 0 ? (
+                  <DeforestationMap
+                    alerts={filteredAlerts}
+                    selectedProvince={filters.province}
+                    language={language}
+                    onSelectAlert={setSelectedAlert}
+                    theme={theme}
+                  />
+                ) : (
+                  <EmptyState 
+                    language={language} 
+                    type={hasBackend ? 'no-data' : 'no-backend'}
+                  />
+                )}
+              </>
             )}
             {viewMode === 'table' && (
-              filteredAlerts.length > 0 ? (
-                <DataTableView
-                  alerts={filteredAlerts}
-                  language={language}
-                  onSelectAlert={setSelectedAlert}
-                />
-              ) : (
-                <EmptyState 
-                  language={language} 
-                  type={hasBackend ? 'no-data' : 'no-backend'}
-                />
-              )
+              <>
+                {filteredAlerts.length > 0 ? (
+                  <DataTableView
+                    alerts={filteredAlerts}
+                    language={language}
+                    onSelectAlert={setSelectedAlert}
+                  />
+                ) : (
+                  <EmptyState 
+                    language={language} 
+                    type={hasBackend ? 'no-data' : 'no-backend'}
+                  />
+                )}
+              </>
             )}
             {viewMode === 'analytics' && (
               <div className="flex h-full flex-col gap-4 overflow-auto bg-background p-6">
