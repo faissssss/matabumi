@@ -52,6 +52,7 @@ yarn-error.log*
 dist/
 build/
 *.log
+*.tsbuildinfo
 
 # Testing
 .pytest_cache/
@@ -140,6 +141,12 @@ diagnostic_output.log
 data/
 outputs/
 test_artifacts/
+
+# Database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
 # Plans directory
 plans/
