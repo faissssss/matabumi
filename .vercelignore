@@ -9,10 +9,10 @@ tests/
 *.db-journal
 requirements.txt
 
-# Data and outputs
-data/
-outputs/
-test_artifacts/
+# Root-level data and outputs only (not frontend/src/data)
+/data/
+/outputs/
+/test_artifacts/
 
 # Documentation
 *.md
