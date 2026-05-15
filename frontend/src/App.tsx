@@ -13,6 +13,7 @@ import Header from './components/Header';
 import AnalyticsDrawer from './components/AnalyticsDrawer';
 import DataTableView from './components/DataTableView';
 import AboutPage from './components/AboutPage';
+import EmptyState from './components/EmptyState';
 import { translations } from './i18n';
 import type { Alert, Cause, Filters, Language, NationalStats, ProvinceStats, Severity, TrendPoint } from './types';
 
@@ -38,6 +39,7 @@ export default function App() {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasBackend, setHasBackend] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [currentView, setCurrentView] = useState<PageView>('dashboard');
@@ -72,13 +74,20 @@ export default function App() {
           setStats(statData);
           setProvinceStats(provinceData);
           setTrends(trendData);
+          
+          // Check if we have backend data
+          const hasData = alertData.length > 0 || statData.total_events > 0 || provinceData.length > 0;
+          setHasBackend(hasData);
+          
           if (selectedAlert && !alertData.some((alert) => alert.id === selectedAlert.id)) {
             setSelectedAlert(null);
           }
         }
       } catch (loadError) {
         if (!cancelled) {
+          console.error('Failed to load dashboard data:', loadError);
           setError(loadError instanceof Error ? loadError.message : 'Unable to load dashboard data');
+          setHasBackend(false);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -191,20 +200,34 @@ export default function App() {
           {/* Main View - Map, Table, or Analytics */}
           <div className="flex-1 overflow-hidden rounded-xl border border-border shadow-2xl">
             {viewMode === 'map' && (
-              <DeforestationMap
-                alerts={filteredAlerts}
-                selectedProvince={filters.province}
-                language={language}
-                onSelectAlert={setSelectedAlert}
-                theme={theme}
-              />
+              filteredAlerts.length > 0 ? (
+                <DeforestationMap
+                  alerts={filteredAlerts}
+                  selectedProvince={filters.province}
+                  language={language}
+                  onSelectAlert={setSelectedAlert}
+                  theme={theme}
+                />
+              ) : (
+                <EmptyState 
+                  language={language} 
+                  type={hasBackend ? 'no-data' : 'no-backend'}
+                />
+              )
             )}
             {viewMode === 'table' && (
-              <DataTableView
-                alerts={filteredAlerts}
-                language={language}
-                onSelectAlert={setSelectedAlert}
-              />
+              filteredAlerts.length > 0 ? (
+                <DataTableView
+                  alerts={filteredAlerts}
+                  language={language}
+                  onSelectAlert={setSelectedAlert}
+                />
+              ) : (
+                <EmptyState 
+                  language={language} 
+                  type={hasBackend ? 'no-data' : 'no-backend'}
+                />
+              )
             )}
             {viewMode === 'analytics' && (
               <div className="flex h-full flex-col gap-4 overflow-auto bg-background p-6">
@@ -212,12 +235,19 @@ export default function App() {
                 <div className="flex-shrink-0">
                   <KPICards stats={stats} language={language} />
                 </div>
-                <TrendChart
-                  trends={trends}
-                  stats={stats}
-                  alerts={filteredAlerts}
-                  language={language}
-                />
+                {filteredAlerts.length > 0 || trends.length > 0 ? (
+                  <TrendChart
+                    trends={trends}
+                    stats={stats}
+                    alerts={filteredAlerts}
+                    language={language}
+                  />
+                ) : (
+                  <EmptyState 
+                    language={language} 
+                    type={hasBackend ? 'no-data' : 'no-backend'}
+                  />
+                )}
               </div>
             )}
           </div>

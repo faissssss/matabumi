@@ -5,13 +5,86 @@
     <link rel="icon" type="image/png" href="/assets/matabumi-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MataBumi - Indonesia Deforestation Monitoring</title>
+    <script>
+      // CRITICAL: Set theme BEFORE any rendering to prevent flash/conflicts
+      (function() {
+        try {
+          const theme = localStorage.getItem('matabumi-theme') || 'dark';
+          document.documentElement.classList.add(theme);
+        } catch (e) {
+          // Fallback if localStorage fails
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <style>
-      body { margin: 0; padding: 0; background: #171717; }
-      #root { min-height: 100vh; }
+      /* Inline critical styles for immediate rendering */
+      body { 
+        margin: 0; 
+        padding: 0; 
+        background: #171717; 
+        color: #e5e5e5;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      #root { 
+        min-height: 100vh; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Loading indicator */
+      .app-loading {
+        text-align: center;
+        padding: 2rem;
+      }
+      .app-loading-spinner {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 1rem;
+        border: 3px solid rgba(245, 158, 11, 0.3);
+        border-top-color: #f59e0b;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .app-error {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+      }
+      .app-error h2 {
+        color: #ef4444;
+        margin: 0 0 1rem;
+      }
+      .app-error button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background: #f59e0b;
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .app-error button:hover {
+        background: #d97706;
+      }
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading fallback shown until React mounts -->
+      <div class="app-loading">
+        <div class="app-loading-spinner"></div>
+        <p>Loading MataBumi...</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

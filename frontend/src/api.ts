@@ -22,6 +22,11 @@ const MOCK_STATS: NationalStats = {
   protected_area_events: 0,
 };
 
+// Helper to check if we're in production without backend
+const isProductionWithoutBackend = () => {
+  return import.meta.env.PROD && API_BASE_URL.startsWith('/');
+};
+
 export async function fetchAlerts(filters: Filters): Promise<Alert[]> {
   try {
     const response = await api.get<Alert[]>('/api/alerts', {
@@ -33,31 +38,40 @@ export async function fetchAlerts(filters: Filters): Promise<Alert[]> {
         end_date: filters.endDate || undefined,
         limit: 500,
       },
-      timeout: 5000,
+      timeout: 10000, // Increased timeout for production
     });
     return response.data;
   } catch (error) {
-    console.warn('Backend not available, using empty data:', error);
+    console.warn('Backend not available for alerts:', error);
+    if (isProductionWithoutBackend()) {
+      console.info('Running in demo mode without backend. No alerts available.');
+    }
     return [];
   }
 }
 
 export async function fetchStats(): Promise<NationalStats> {
   try {
-    const response = await api.get<NationalStats>('/api/stats', { timeout: 5000 });
+    const response = await api.get<NationalStats>('/api/stats', { timeout: 10000 });
     return response.data;
   } catch (error) {
-    console.warn('Backend not available, using mock stats:', error);
+    console.warn('Backend not available for stats:', error);
+    if (isProductionWithoutBackend()) {
+      console.info('Running in demo mode without backend. Showing empty stats.');
+    }
     return MOCK_STATS;
   }
 }
 
 export async function fetchProvinceStats(): Promise<ProvinceStats[]> {
   try {
-    const response = await api.get<ProvinceStats[]>('/api/provinces', { timeout: 5000 });
+    const response = await api.get<ProvinceStats[]>('/api/provinces', { timeout: 10000 });
     return response.data;
   } catch (error) {
-    console.warn('Backend not available, using empty province stats:', error);
+    console.warn('Backend not available for province stats:', error);
+    if (isProductionWithoutBackend()) {
+      console.info('Running in demo mode without backend. No province data available.');
+    }
     return [];
   }
 }
@@ -66,11 +80,14 @@ export async function fetchTrends(province?: string): Promise<TrendPoint[]> {
   try {
     const response = await api.get<TrendPoint[]>('/api/trends', {
       params: { province: province || undefined },
-      timeout: 5000,
+      timeout: 10000,
     });
     return response.data;
   } catch (error) {
-    console.warn('Backend not available, using empty trends:', error);
+    console.warn('Backend not available for trends:', error);
+    if (isProductionWithoutBackend()) {
+      console.info('Running in demo mode without backend. No trend data available.');
+    }
     return [];
   }
 }
