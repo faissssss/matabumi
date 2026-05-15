@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Menu, X, BarChart3, Table2, Sun, Moon } from 'lucide-react';
+import { AlertTriangle, Menu, X, BarChart3, Table2, Sun, Moon, MapPin, ChevronUp, ChevronDown, Download } from 'lucide-react';
 import { fetchAlerts, fetchProvinceStats, fetchStats, fetchTrends } from './api';
 import EventCard from './components/EventCard';
 import ImpactCalculator from './components/ImpactCalculator';
@@ -12,6 +12,7 @@ import KPICards from './components/KPICards';
 import Header from './components/Header';
 import AnalyticsDrawer from './components/AnalyticsDrawer';
 import DataTableView from './components/DataTableView';
+import AboutPage from './components/AboutPage';
 import { translations } from './i18n';
 import type { Alert, Cause, Filters, Language, NationalStats, ProvinceStats, Severity, TrendPoint } from './types';
 
@@ -23,8 +24,9 @@ const initialFilters: Filters = {
   endDate: '',
 };
 
-type ViewMode = 'map' | 'table';
+type ViewMode = 'map' | 'table' | 'analytics';
 type Theme = 'dark' | 'light';
+type PageView = 'dashboard' | 'about';
 
 export default function App() {
   const [language, setLanguage] = useState<Language>('id');
@@ -37,8 +39,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [currentView, setCurrentView] = useState<PageView>('dashboard');
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('matabumi-theme');
     return (saved as Theme) || 'dark';
@@ -103,73 +105,36 @@ export default function App() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-forest-dark">
-      {/* Header */}
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-background">
+      {/* Header - Always visible */}
       <Header
         language={language}
         onLanguageChange={setLanguage}
         theme={theme}
         onThemeToggle={toggleTheme}
         loading={loading}
+        currentView={currentView}
+        onViewChange={setCurrentView}
       />
 
-      {/* Error Banner */}
-      {error && (
-        <div className="absolute left-1/2 top-20 z-50 flex max-w-md -translate-x-1/2 items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 backdrop-blur-xl">
-          <AlertTriangle size={18} />
-          {error}
-        </div>
-      )}
+      {/* Conditional Content - Dashboard or About Page */}
+      {currentView === 'about' ? (
+        <AboutPage language={language} />
+      ) : (
+        <>
+          {/* Error Banner */}
+          {error && (
+            <div className="absolute left-1/2 top-20 z-50 flex max-w-md -translate-x-1/2 items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive backdrop-blur-xl">
+              <AlertTriangle size={18} />
+              {error}
+            </div>
+          )}
 
-      {/* KPI Cards - Floating at top center */}
-      <KPICards stats={stats} language={language} />
-
-      {/* Main Content Area */}
-      <div className="relative h-[calc(100vh-64px)]">
-        {/* Sidebar Toggle Button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute left-4 top-4 z-40 rounded-lg bg-glass-surface p-2 text-mist-white backdrop-blur-xl transition-all hover:bg-glass-surface/80"
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-
-        {/* View Mode Toggle */}
-        <div className="absolute right-4 top-4 z-40 flex gap-1 rounded-lg bg-glass-surface p-1 backdrop-blur-xl">
-          <button
-            onClick={() => setViewMode('map')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
-              viewMode === 'map'
-                ? 'bg-canopy-green text-white'
-                : 'text-mist-white/70 hover:text-mist-white'
-            }`}
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-            </svg>
-            Map View
-          </button>
-          <button
-            onClick={() => setViewMode('table')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
-              viewMode === 'table'
-                ? 'bg-canopy-green text-white'
-                : 'text-mist-white/70 hover:text-mist-white'
-            }`}
-          >
-            <Table2 size={16} />
-            Data Table
-          </button>
-        </div>
-
-        {/* Floating Sidebar */}
-        <div
-          className={`absolute left-4 top-16 z-30 h-[calc(100vh-144px)] w-80 transition-transform duration-300 ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
-          }`}
-        >
-          <div className="h-full overflow-hidden rounded-xl bg-glass-surface backdrop-blur-xl">
+          {/* Main Content Grid */}
+          <div className="flex flex-1 gap-4 overflow-hidden p-4">
+        {/* Left Sidebar - Filters */}
+        <div className="w-80 flex-shrink-0">
+          <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl backdrop-blur-xl">
             <Sidebar
               filters={filters}
               language={language}
@@ -180,41 +145,77 @@ export default function App() {
           </div>
         </div>
 
-        {/* Main View - Map or Table */}
-        {viewMode === 'map' ? (
-          <div className="h-full w-full">
-            <DeforestationMap
-              alerts={filteredAlerts}
-              selectedProvince={filters.province}
-              language={language}
-              onSelectAlert={setSelectedAlert}
-              theme={theme}
-            />
+        {/* Center - Map or Table or Analytics with KPI Cards */}
+        <div className="flex flex-1 flex-col gap-4 overflow-hidden">
+          {/* View Mode Toggle - 3 tabs - CENTERED */}
+          <div className="flex items-center justify-center">
+            <div className="flex gap-1 rounded-lg border border-border bg-card p-1 shadow-lg backdrop-blur-xl">
+              <button
+                onClick={() => setViewMode('map')}
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                  viewMode === 'map'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                {t.mapView}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                  viewMode === 'table'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                <Table2 size={16} />
+                {t.dataTable}
+              </button>
+              <button
+                onClick={() => setViewMode('analytics')}
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                  viewMode === 'analytics'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                <BarChart3 size={16} />
+                {t.analytics}
+              </button>
+            </div>
           </div>
-        ) : (
-          <DataTableView
-            alerts={filteredAlerts}
-            language={language}
-            onSelectAlert={setSelectedAlert}
-          />
-        )}
 
-        {/* Right Detail Drawer - Slides in when alert selected */}
-        <div
-          className={`absolute right-0 top-0 z-30 h-full w-96 transform transition-transform duration-300 ${
-            selectedAlert ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="h-full overflow-y-auto bg-glass-surface p-6 backdrop-blur-xl">
-            <EventCard
-              alert={selectedAlert}
-              language={language}
-              onClose={() => setSelectedAlert(null)}
-            />
-            {selectedAlert && (
-              <div className="mt-6">
-                <ImpactCalculator
-                  totalArea={stats?.total_area_ha ?? 0}
+          {/* Main View - Map, Table, or Analytics */}
+          <div className="flex-1 overflow-hidden rounded-xl border border-border shadow-2xl">
+            {viewMode === 'map' && (
+              <DeforestationMap
+                alerts={filteredAlerts}
+                selectedProvince={filters.province}
+                language={language}
+                onSelectAlert={setSelectedAlert}
+                theme={theme}
+              />
+            )}
+            {viewMode === 'table' && (
+              <DataTableView
+                alerts={filteredAlerts}
+                language={language}
+                onSelectAlert={setSelectedAlert}
+              />
+            )}
+            {viewMode === 'analytics' && (
+              <div className="flex h-full flex-col gap-4 overflow-auto bg-background p-6">
+                {/* KPI Cards Row - Inside Analytics View */}
+                <div className="flex-shrink-0">
+                  <KPICards stats={stats} language={language} />
+                </div>
+                <TrendChart
+                  trends={trends}
+                  stats={stats}
+                  alerts={filteredAlerts}
                   language={language}
                 />
               </div>
@@ -222,16 +223,39 @@ export default function App() {
           </div>
         </div>
 
-        {/* Bottom Analytics Drawer */}
-        <AnalyticsDrawer
-          isOpen={analyticsOpen}
-          onToggle={() => setAnalyticsOpen(!analyticsOpen)}
-          trends={trends}
-          stats={stats}
-          alerts={filteredAlerts}
-          language={language}
-        />
+        {/* Right Panel - Event Detail */}
+        <div className="w-96 flex-shrink-0">
+          <div className="h-full overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl backdrop-blur-xl">
+            {selectedAlert ? (
+              <>
+                <EventCard
+                  alert={selectedAlert}
+                  language={language}
+                  onClose={() => setSelectedAlert(null)}
+                />
+                <div className="mt-6">
+                  <ImpactCalculator
+                    totalArea={stats?.total_area_ha ?? 0}
+                    language={language}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <MapPin className="mb-4 text-muted-foreground/20" size={64} />
+                <h3 className="mb-2 text-lg font-semibold text-foreground">
+                  {t.noEvent || 'No Event Selected'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Click on a marker on the map to view details
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

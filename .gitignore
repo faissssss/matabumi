@@ -67,3 +67,74 @@ htmlcov/
 # Temporary files
 *.tmp
 *.bak
+
+# Kiro/Agent files
+.kiro/
+.agents/
+skills-lock.json
+
+# Documentation and temporary markdown files
+*_SUMMARY.md
+*_STATUS.md
+*_GUIDE.md
+*_PLAN.md
+*_COMPLETE.md
+*_FIXES.md
+*_APPLIED.md
+*_RESULTS.md
+*_REPORT.md
+*_CHECKLIST.md
+*_REFERENCE.md
+*_EXECUTION.md
+*_VALIDATION.md
+*_DECISION.md
+*_IMPROVEMENTS.md
+*_DESIGN.md
+*_QUICKSTART.md
+*_BEFORE_AFTER.md
+*_UPDATE.md
+*_COLORS_*.md
+*_IMPLEMENTATION_*.md
+*_FIX_*.md
+*_UPDATES_*.md
+*_THEME_*.md
+*_DATABASE_*.md
+*_DASHBOARD_*.md
+*_IN_PROGRESS.md
+ACTION_PLAN*.md
+DIAGNOSTIC_*.md
+EXECUTION_*.md
+FINAL_*.md
+MARKER_*.md
+NEW_*.md
+THEME_*.md
+UI_*.md
+UNEXPECTED_*.md
+VALIDATION_*.md
+CHANGES_*.md
+COMPLETE_*.md
+FIXES_*.md
+SESSION_*.md
+REVISED_*.md
+
+# Test and diagnostic scripts
+test_*.py
+check_*.py
+cleanup_*.py
+diagnostic_*.py
+investigate_*.py
+verify_*.py
+monitor_*.py
+analyze_*.py
+diagnostic_output.log
+
+# Database patches
+*.patch
+
+# Data directories
+data/
+outputs/
+test_artifacts/
+
+# Plans directory
+plans/

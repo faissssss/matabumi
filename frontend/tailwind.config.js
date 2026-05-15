@@ -5,12 +5,48 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['Inter', 'Plus Jakarta Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'IBM Plex Mono', 'monospace'],
+        serif: ['Source Serif 4', 'serif'],
       },
       colors: {
-        // MataBumi 2.0 Color Palette
-        'canopy-green': '#1A4D2E',
+        // New Theme Colors
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        
+        // MataBumi 2.0 Color Palette - NOW USING AMBER!
+        'canopy-green': '#f59e0b', // Changed to amber!
         'forest-dark': '#0D1F15',
         'mist-white': '#F0F4F1',
         'alert-orange': '#EA580C',
@@ -22,11 +58,16 @@ export default {
         'light-text': '#0D1F15',
         
         // Legacy colors (keep for compatibility)
-        canopy: '#0f3d31',
+        canopy: '#f59e0b', // Changed to amber!
         earth: '#b56b3f',
         river: '#2f80ed',
         ember: '#d9480f',
         paper: '#f7f5ef',
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
     },
   },

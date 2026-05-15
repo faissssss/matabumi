@@ -1,46 +1,167 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* MataBumi 2.0 Theme Variables */
-:root {
-  /* Dark Mode (Default) */
-  --bg: #0D1F15;
-  --surface: rgba(255, 255, 255, 0.06);
-  --text: #F0F4F1;
-  --text-secondary: rgba(240, 244, 241, 0.6);
-  --canopy: #1A4D2E;
-  --alert: #EA580C;
-}
-
-:root.light {
-  /* Light Mode */
-  --bg: #F4F7F5;
-  --surface: rgba(255, 255, 255, 0.85);
-  --text: #0D1F15;
-  --text-secondary: rgba(13, 31, 21, 0.6);
-  --canopy: #1A4D2E;
-  --alert: #C2410C;
-}
-
-* {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-body {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg);
-  color: var(--text);
-}
-
-code {
-  font-family: 'IBM Plex Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+  }
+  
+  :root {
+    /* New Theme - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 46%;
+    --muted: 210 20% 98%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 38 100% 97%;
+    --accent-foreground: 30 100% 32%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 38 92% 50%;
+    --radius: 0.375rem;
+    --chart-1: 38 92% 50%;
+    --chart-2: 32 96% 44%;
+    --chart-3: 29 96% 37%;
+    --chart-4: 28 96% 32%;
+    --chart-5: 26 96% 27%;
+    
+    /* MataBumi Light Mode (legacy) */
+    --bg: #F4F7F5;
+    --surface: rgba(255, 255, 255, 0.85);
+    --text: #0D1F15;
+    --text-secondary: rgba(13, 31, 21, 0.6);
+    --canopy: #1A4D2E;
+    --alert: #C2410C;
+  }
+  
+  .dark {
+    /* New Theme - Dark Mode */
+    --background: 0 0% 9%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 90%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 28 96% 32%;
+    --accent-foreground: 43 96% 89%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 38 92% 50%;
+    --chart-1: 43 96% 56%;
+    --chart-2: 32 96% 44%;
+    --chart-3: 28 96% 32%;
+    --chart-4: 29 96% 37%;
+    --chart-5: 28 96% 32%;
+    
+    /* MataBumi Dark Mode (legacy) */
+    --bg: #0D1F15;
+    --surface: rgba(255, 255, 255, 0.06);
+    --text: #F0F4F1;
+    --text-secondary: rgba(240, 244, 241, 0.6);
+    --canopy: #1A4D2E;
+    --alert: #EA580C;
+  }
+  
+  * {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    margin: 0;
+    font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+  
+  html {
+    font-family: 'Geist Variable', sans-serif;
+  }
+  
+  code {
+    font-family: 'IBM Plex Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+  
+  /* Apply theme to all form elements */
+  input,
+  select,
+  textarea,
+  button {
+    color: hsl(var(--foreground));
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  /* Select dropdown styling */
+  select {
+    background-color: hsl(var(--input));
+    border-color: hsl(var(--border));
+  }
+  
+  select:focus {
+    border-color: hsl(var(--ring));
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+  }
+  
+  select option {
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+  }
+  
+  /* Input styling */
+  input[type="text"],
+  input[type="search"],
+  input[type="date"],
+  input[type="email"],
+  input[type="number"],
+  textarea {
+    background-color: hsl(var(--input));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+  
+  input[type="text"]:focus,
+  input[type="search"]:focus,
+  input[type="date"]:focus,
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  textarea:focus {
+    border-color: hsl(var(--ring));
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+  }
 }
 
 /* Scrollbar Styling */
@@ -62,11 +183,29 @@ code {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.light ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 /* Glassmorphism Effect */
 .glass {
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Animations */
@@ -85,10 +224,27 @@ code {
   animation: fadeIn 0.3s ease-out;
 }
 
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
 /* Map Container */
 .leaflet-container {
   background: #0D1F15 !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
+  width: 100%;
+  height: 100%;
 }
 
 .light .leaflet-container {
@@ -96,33 +252,154 @@ code {
 }
 
 /* Leaflet Controls Styling */
-.leaflet-control-zoom a {
+.leaflet-control-zoom a,
+.leaflet-control-layers-toggle {
   background: rgba(255, 255, 255, 0.06) !important;
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #F0F4F1 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.2s ease;
 }
 
-.leaflet-control-zoom a:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+.leaflet-control-zoom a:hover,
+.leaflet-control-layers-toggle:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: scale(1.05);
 }
 
-.light .leaflet-control-zoom a {
+.light .leaflet-control-zoom a,
+.light .leaflet-control-layers-toggle {
   background: rgba(255, 255, 255, 0.85) !important;
   color: #0D1F15 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .leaflet-control-zoom a:hover,
+.light .leaflet-control-layers-toggle:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Make Layer Control Toggle Button More Visible */
+.leaflet-control-layers-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  background-image: none !important;
+  position: relative !important;
+}
+
+.leaflet-control-layers-toggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23F0F4F1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E") !important;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.light .leaflet-control-layers-toggle::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230D1F15' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E") !important;
+}
+
+/* Leaflet Layers Control */
+.leaflet-control-layers {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: #F0F4F1 !important;
+}
+
+.light .leaflet-control-layers {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0D1F15 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  color: #F0F4F1 !important;
+}
+
+.light .leaflet-control-layers-base label,
+.light .leaflet-control-layers-overlays label {
+  color: #0D1F15 !important;
+}
+
+/* Native Select Dropdown Styling */
+select {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F0F4F1' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 12px !important;
+  color: #F0F4F1 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.light select {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230D1F15' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  color: #0D1F15 !important;
+}
+
+select option {
+  background-color: #0D1F15 !important;
+  color: #F0F4F1 !important;
+  padding: 8px !important;
+}
+
+.light select option {
+  background-color: #FFFFFF !important;
+  color: #0D1F15 !important;
+}
+
+/* Date Input Styling */
+input[type="date"] {
+  color-scheme: dark;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #F0F4F1 !important;
+}
+
+.light input[type="date"] {
+  color-scheme: light;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #0D1F15 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
 }
 
 /* Leaflet Popup Styling */
 .leaflet-popup-content-wrapper {
   background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #F0F4F1 !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .light .leaflet-popup-content-wrapper {
   background: rgba(255, 255, 255, 0.95) !important;
   color: #0D1F15 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .leaflet-popup-tip {
@@ -133,43 +410,41 @@ code {
   background: rgba(255, 255, 255, 0.95) !important;
 }
 
-:root {
-  color: #17231f;
-  background: #f7f5ef;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(15, 61, 49, 0.08), transparent 360px),
-    #f7f5ef;
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-}
-
 .leaflet-control-layers,
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  border-radius: 6px;
+  border-radius: 8px;
+}
+
+/* Marker Styling - Prevent flickering and ensure smooth rendering */
+.custom-marker-icon {
+  background: transparent !important;
+  border: none !important;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.marker-pin {
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: auto;
+}
+
+/* Ensure markers stay visible during map movement */
+.leaflet-marker-pane {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Smooth marker transitions */
+.leaflet-marker-icon {
+  transition: none !important;
+}
+
+.marker-pin {
+  transition: transform 0.2s ease-out !important;
 }
 
 .marker-dot {
@@ -177,4 +452,24 @@ select {
   height: 18px;
   border: 3px solid #fff;
   box-shadow: 0 4px 14px rgba(15, 35, 31, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.marker-dot:hover {
+  transform: scale(1.2);
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glass-surface {
+    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10;
+  }
+  
+  .light .glass-surface {
+    @apply bg-white/85 border-black/10;
+  }
 }

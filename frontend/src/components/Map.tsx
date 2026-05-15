@@ -6,10 +6,10 @@ import type { Alert, Language } from '../types';
 import { PROVINCE_CENTERS } from '../data/provinces';
 
 const severityColors = {
-  low: '#2f9e44',
-  moderate: '#f2c94c',
-  high: '#f2994a',
-  critical: '#EA580C',
+  low: '#22c55e',      // Bright green - clearly safe
+  moderate: '#eab308',  // Bright yellow - warning
+  high: '#f97316',      // Bright orange - danger
+  critical: '#dc2626',  // Bright red - critical
 };
 
 interface Props {
@@ -22,21 +22,35 @@ interface Props {
 
 function markerIcon(color: string) {
   return L.divIcon({
-    className: '',
+    className: 'custom-marker-icon',
     html: `
-      <div style="
+      <div class="marker-pin" style="
+        position: relative;
+        width: 24px;
+        height: 24px;
         background: ${color};
-        width: 20px;
-        height: 20px;
         border-radius: 50%;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 10px ${color}80;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 2px ${color}40;
         cursor: pointer;
-        transition: transform 0.2s;
-      "></div>
+        will-change: transform;
+      ">
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 8px;
+          height: 8px;
+          background: white;
+          border-radius: 50%;
+          opacity: 0.9;
+        "></div>
+      </div>
     `,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12],
   });
 }
 
@@ -54,37 +68,58 @@ function ProvinceFocus({ province }: { province: string }) {
   return null;
 }
 
-function ResetViewButton() {
+// Removed ResetViewButton - Home button removed as requested
+
+function MapClickHandler({ onSelectAlert, alerts }: { onSelectAlert: (alert: Alert) => void; alerts: Alert[] }) {
   const map = useMap();
   
-  return (
-    <div className="leaflet-top leaflet-right" style={{ top: '80px' }}>
-      <div className="leaflet-control">
-        <button
-          onClick={() => map.flyTo([-2.5, 118], 5, { duration: 0.7 })}
-          className="rounded-lg bg-glass-surface p-2 text-mist-white backdrop-blur-xl transition-all hover:bg-glass-surface/80"
-          style={{
-            width: '34px',
-            height: '34px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-          }}
-          title="Reset View"
-        >
-          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    const handleClick = (e: L.LeafletMouseEvent) => {
+      // Find closest alert to click
+      const clickedPoint = e.latlng;
+      let closestAlert: Alert | null = null;
+      let minDistance = Infinity;
+      
+      alerts.forEach(alert => {
+        const distance = map.distance(clickedPoint, [alert.lat, alert.lng]);
+        if (distance < minDistance && distance < 50000) { // Within 50km
+          minDistance = distance;
+          closestAlert = alert;
+        }
+      });
+      
+      if (closestAlert) {
+        const selectedAlert = closestAlert as Alert;
+        map.flyTo([selectedAlert.lat, selectedAlert.lng], 10, {
+          duration: 0.8,
+          easeLinearity: 0.25
+        });
+        onSelectAlert(selectedAlert);
+      }
+    };
+    
+    map.on('click', handleClick);
+    return () => {
+      map.off('click', handleClick);
+    };
+  }, [map, onSelectAlert, alerts]);
+  
+  return null;
 }
 
 export default function DeforestationMap({ alerts, selectedProvince, language, onSelectAlert, theme }: Props) {
   // Choose tile layer based on theme
   const defaultLayer = theme === 'dark' ? 'Dark' : 'Light';
+  
+  const handleMarkerClick = (alert: Alert, map: L.Map) => {
+    // Zoom to marker with animation
+    map.flyTo([alert.lat, alert.lng], 10, {
+      duration: 0.8,
+      easeLinearity: 0.25
+    });
+    // Call the select handler
+    onSelectAlert(alert);
+  };
   
   return (
     <div className="relative h-full w-full">
@@ -96,7 +131,7 @@ export default function DeforestationMap({ alerts, selectedProvince, language, o
         zoomControl={true}
       >
         <ProvinceFocus province={selectedProvince} />
-        <ResetViewButton />
+        <MapClickHandler onSelectAlert={onSelectAlert} alerts={alerts} />
         
         <LayersControl position="topright">
           {/* Dark Mode Layers */}
@@ -135,48 +170,81 @@ export default function DeforestationMap({ alerts, selectedProvince, language, o
               url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
-
-          {/* Markers Overlay */}
-          <LayersControl.Overlay checked name="Deforestation Events">
-            <>
-              {alerts.map((alert) => (
-                <Marker
-                  key={alert.id}
-                  position={[alert.lat, alert.lng]}
-                  icon={markerIcon(severityColors[alert.severity])}
-                  eventHandlers={{ 
-                    click: () => onSelectAlert(alert),
-                    mouseover: (e) => {
-                      e.target.getElement().style.transform = 'scale(1.3)';
-                    },
-                    mouseout: (e) => {
-                      e.target.getElement().style.transform = 'scale(1)';
-                    }
-                  }}
-                >
-                  <Popup className="custom-popup">
-                    <div className="space-y-2">
-                      <div className="font-semibold text-mist-white">{alert.province}</div>
-                      <div className="text-sm text-mist-white/80">
-                        <div>Area: {alert.area_ha.toLocaleString(language)} ha</div>
-                        <div>Cause: {alert.cause}</div>
-                        <div>Severity: {severityLabels[language][alert.severity]}</div>
-                        <div>Date: {new Date(alert.detected_at).toLocaleDateString()}</div>
-                      </div>
-                      <button
-                        onClick={() => onSelectAlert(alert)}
-                        className="mt-2 w-full rounded bg-canopy-green px-3 py-1 text-sm text-white hover:bg-canopy-green/90"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </>
-          </LayersControl.Overlay>
         </LayersControl>
+        
+        {/* Markers rendered directly without overlay control */}
+        {alerts.map((alert) => (
+          <MarkerWithClick
+            key={alert.id}
+            alert={alert}
+            language={language}
+            onSelectAlert={onSelectAlert}
+            color={severityColors[alert.severity]}
+          />
+        ))}
       </MapContainer>
     </div>
+  );
+}
+
+function MarkerWithClick({ alert, language, onSelectAlert, color }: { alert: Alert; language: Language; onSelectAlert: (alert: Alert) => void; color: string }) {
+  const map = useMap();
+  
+  const handleClick = () => {
+    map.flyTo([alert.lat, alert.lng], 10, {
+      duration: 0.8,
+      easeLinearity: 0.25
+    });
+    onSelectAlert(alert);
+  };
+  
+  return (
+    <Marker
+      position={[alert.lat, alert.lng]}
+      icon={markerIcon(color)}
+      eventHandlers={{ 
+        click: handleClick,
+        mouseover: (e) => {
+          const element = e.target.getElement();
+          if (element) {
+            const pin = element.querySelector('.marker-pin') as HTMLElement;
+            if (pin) {
+              pin.style.transform = 'scale(1.4)';
+              pin.style.zIndex = '1000';
+              pin.style.transition = 'transform 0.2s ease-out';
+            }
+          }
+        },
+        mouseout: (e) => {
+          const element = e.target.getElement();
+          if (element) {
+            const pin = element.querySelector('.marker-pin') as HTMLElement;
+            if (pin) {
+              pin.style.transform = 'scale(1)';
+              pin.style.zIndex = '';
+              pin.style.transition = 'transform 0.2s ease-out';
+            }
+          }
+        }
+      }}
+    >
+      <Popup className="custom-popup">
+        <div className="space-y-2">
+          <div className="font-semibold text-foreground">{alert.province}</div>
+          <div className="text-sm text-muted-foreground">
+            <div>Area: {alert.area_ha.toLocaleString(language)} ha</div>
+            <div>Cause: {alert.cause}</div>
+            <div>Severity: {severityLabels[language][alert.severity]}</div>
+            <div>Date: {new Date(alert.detected_at).toLocaleDateString()}</div>
+          </div>
+          <button
+            onClick={handleClick}
+            className="mt-2 w-full rounded bg-primary px-3 py-1 text-sm text-primary-foreground hover:bg-primary/90"
+          >
+            View Details
+          </button>
+        </div>
+      </Popup>
+    </Marker>
   );
 }

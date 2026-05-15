@@ -22,7 +22,7 @@ export default function KPICards({ stats, language }: KPICardsProps) {
     },
     {
       label: t.totalAlerts,
-      value: stats?.total_alerts?.toLocaleString() || '0',
+      value: stats?.total_events?.toLocaleString() || '0',
       unit: t.alerts,
       icon: AlertTriangle,
       color: 'text-yellow-400',
@@ -30,7 +30,7 @@ export default function KPICards({ stats, language }: KPICardsProps) {
     },
     {
       label: t.criticalAlerts,
-      value: stats?.critical_alerts?.toLocaleString() || '0',
+      value: stats?.by_severity?.critical?.toLocaleString() || '0',
       unit: t.critical,
       icon: AlertTriangle,
       color: 'text-alert-orange',
@@ -38,7 +38,7 @@ export default function KPICards({ stats, language }: KPICardsProps) {
     },
     {
       label: t.protectedZones,
-      value: stats?.protected_zones?.toLocaleString() || '0',
+      value: stats?.protected_zone_breaches?.toLocaleString() || '0',
       unit: t.zones,
       icon: Shield,
       color: 'text-canopy-green',
@@ -65,7 +65,7 @@ export default function KPICards({ stats, language }: KPICardsProps) {
       y: 0,
       scale: 1,
       transition: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 100,
         damping: 15,
       },
@@ -74,7 +74,7 @@ export default function KPICards({ stats, language }: KPICardsProps) {
 
   return (
     <motion.div
-      className="absolute left-1/2 top-20 z-40 flex -translate-x-1/2 gap-4"
+      className="grid grid-cols-2 gap-3"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -85,23 +85,21 @@ export default function KPICards({ stats, language }: KPICardsProps) {
           <motion.div
             key={index}
             variants={cardVariants}
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="group min-w-[180px] rounded-xl bg-glass-surface p-4 backdrop-blur-xl transition-all"
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="group flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg backdrop-blur-xl transition-all"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-xs font-medium text-mist-white/60">
-                  {card.label}
-                </p>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className={`text-3xl font-bold ${card.color}`}>
-                    {card.value}
-                  </span>
-                  <span className="text-sm text-mist-white/40">{card.unit}</span>
-                </div>
-              </div>
-              <div className={`rounded-lg ${card.bgColor} p-2`}>
-                <Icon className={card.color} size={20} />
+            <div className={`rounded-lg ${card.bgColor} p-2`}>
+              <Icon className={card.color} size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-muted-foreground truncate">
+                {card.label}
+              </p>
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className={`text-xl font-bold ${card.color} truncate`}>
+                  {card.value}
+                </span>
+                <span className="text-xs text-muted-foreground truncate">{card.unit}</span>
               </div>
             </div>
           </motion.div>

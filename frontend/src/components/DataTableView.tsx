@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Download, Search, ArrowUpDown } from 'lucide-react';
 import { Alert, Language } from '../types';
-import { translations } from '../i18n';
+import { translations, causeLabels, severityLabels } from '../i18n';
 
 interface DataTableViewProps {
   alerts: Alert[];
@@ -76,8 +76,8 @@ export default function DataTableView({
       alert.detected_at,
       alert.province,
       alert.area_ha.toFixed(1),
-      alert.cause,
-      alert.severity,
+      causeLabels[language][alert.cause],
+      severityLabels[language][alert.severity],
       (alert.confidence * 100).toFixed(0) + '%',
     ]);
 
@@ -93,29 +93,29 @@ export default function DataTableView({
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return 'text-alert-orange bg-alert-orange/10';
+        return 'text-red-500 bg-red-500/10';
       case 'high':
-        return 'text-red-400 bg-red-400/10';
+        return 'text-orange-500 bg-orange-500/10';
       case 'moderate':
-        return 'text-yellow-400 bg-yellow-400/10';
+        return 'text-yellow-500 bg-yellow-500/10';
       case 'low':
-        return 'text-green-400 bg-green-400/10';
+        return 'text-green-500 bg-green-500/10';
       default:
-        return 'text-mist-white/60 bg-white/5';
+        return 'text-muted-foreground bg-muted';
     }
   };
 
   return (
-    <div className="h-full overflow-hidden bg-forest-dark p-6">
-      <div className="mx-auto h-full max-w-[1600px]">
+    <div className="h-full overflow-hidden bg-background p-6">
+      <div className="mx-auto flex h-full flex-col max-w-[1600px]">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-shrink-0 items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-mist-white">
-              Data Table View
+            <h2 className="text-2xl font-semibold text-foreground">
+              {t.dataTableView}
             </h2>
-            <p className="mt-1 text-sm text-mist-white/60">
-              {filteredAndSortedAlerts.length} incidents found
+            <p className="mt-1 text-sm text-muted-foreground">
+              {filteredAndSortedAlerts.length} {t.incidentsFound}
             </p>
           </div>
 
@@ -123,87 +123,87 @@ export default function DataTableView({
             {/* Search */}
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-mist-white/40"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 size={18}
               />
               <input
                 type="text"
-                placeholder="Search province or cause..."
+                placeholder={t.searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64 rounded-lg bg-glass-surface py-2 pl-10 pr-4 text-sm text-mist-white placeholder-mist-white/40 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-canopy-green"
+                className="w-64 rounded-lg border border-input bg-input py-2 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             {/* Export */}
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 rounded-lg bg-canopy-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-canopy-green/90"
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <Download size={16} />
-              Export CSV
+              {t.exportCSV}
             </button>
           </div>
         </div>
 
         {/* Table */}
-        <div className="h-[calc(100%-100px)] overflow-auto rounded-xl bg-glass-surface backdrop-blur-xl">
+        <div className="flex-1 overflow-auto rounded-xl border border-border bg-card backdrop-blur-xl">
           <table className="w-full">
-            <thead className="sticky top-0 bg-forest-dark/95 backdrop-blur-xl">
-              <tr className="border-b border-white/10">
+            <thead className="sticky top-0 bg-card/95 backdrop-blur-xl">
+              <tr className="border-b border-border">
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('date')}
-                    className="flex items-center gap-2 text-sm font-medium text-mist-white/60 transition-colors hover:text-mist-white"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Date
+                    {t.date}
                     <ArrowUpDown size={14} />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('province')}
-                    className="flex items-center gap-2 text-sm font-medium text-mist-white/60 transition-colors hover:text-mist-white"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Province
+                    {t.province}
                     <ArrowUpDown size={14} />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-right">
                   <button
                     onClick={() => handleSort('area')}
-                    className="flex items-center gap-2 text-sm font-medium text-mist-white/60 transition-colors hover:text-mist-white"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Area (ha)
+                    {t.area} (ha)
                     <ArrowUpDown size={14} />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('cause')}
-                    className="flex items-center gap-2 text-sm font-medium text-mist-white/60 transition-colors hover:text-mist-white"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Cause
+                    {t.cause}
                     <ArrowUpDown size={14} />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left">
                   <button
                     onClick={() => handleSort('severity')}
-                    className="flex items-center gap-2 text-sm font-medium text-mist-white/60 transition-colors hover:text-mist-white"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Severity
+                    {t.severity}
                     <ArrowUpDown size={14} />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-right">
-                  <span className="text-sm font-medium text-mist-white/60">
-                    Confidence
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t.confidence}
                   </span>
                 </th>
                 <th className="px-4 py-3 text-right">
-                  <span className="text-sm font-medium text-mist-white/60">
-                    Actions
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t.actions}
                   </span>
                 </th>
               </tr>
@@ -212,20 +212,20 @@ export default function DataTableView({
               {filteredAndSortedAlerts.map((alert) => (
                 <tr
                   key={alert.id}
-                  className="border-b border-white/5 transition-colors hover:bg-white/5"
+                  className="border-b border-border transition-colors hover:bg-accent"
                 >
-                  <td className="px-4 py-3 text-sm text-mist-white">
+                  <td className="px-4 py-3 text-sm text-foreground">
                     {new Date(alert.detected_at).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-mist-white">
+                  <td className="px-4 py-3 text-sm font-medium text-foreground">
                     {alert.province}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm text-mist-white">
+                  <td className="px-4 py-3 text-right text-sm text-foreground">
                     {alert.area_ha.toFixed(1)}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex rounded-full bg-white/5 px-2 py-1 text-xs font-medium text-mist-white/80">
-                      {alert.cause}
+                    <span className="inline-flex rounded-full bg-muted px-2 py-1 text-xs font-medium text-foreground">
+                      {causeLabels[language][alert.cause]}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -234,18 +234,18 @@ export default function DataTableView({
                         alert.severity
                       )}`}
                     >
-                      {alert.severity}
+                      {severityLabels[language][alert.severity]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-sm text-mist-white">
+                  <td className="px-4 py-3 text-right text-sm text-foreground">
                     {(alert.confidence * 100).toFixed(0)}%
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => onSelectAlert(alert)}
-                      className="text-sm font-medium text-canopy-green transition-colors hover:text-canopy-green/80"
+                      className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
                     >
-                      View Details
+                      {t.viewDetails}
                     </button>
                   </td>
                 </tr>
@@ -254,8 +254,8 @@ export default function DataTableView({
           </table>
 
           {filteredAndSortedAlerts.length === 0 && (
-            <div className="py-12 text-center text-mist-white/60">
-              No incidents found matching your criteria
+            <div className="py-12 text-center text-muted-foreground">
+              {t.noIncidents}
             </div>
           )}
         </div>

@@ -107,6 +107,7 @@ describe('dashboard components', () => {
         selectedProvince="Aceh"
         language="en"
         onSelectAlert={vi.fn()}
+        theme="dark"
       />,
     );
     expect(screen.getByTestId('map')).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import { RefreshCw, Sun, Moon, Search } from 'lucide-react';
+import { RefreshCw, Sun, Moon } from 'lucide-react';
 import { Language } from '../types';
 import LanguageToggle from './LanguageToggle';
 
@@ -8,6 +8,8 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   onThemeToggle: () => void;
   loading: boolean;
+  currentView: 'dashboard' | 'about';
+  onViewChange: (view: 'dashboard' | 'about') => void;
 }
 
 export default function Header({
@@ -16,72 +18,57 @@ export default function Header({
   theme,
   onThemeToggle,
   loading,
+  currentView,
+  onViewChange,
 }: HeaderProps) {
   return (
-    <header className="relative z-50 border-b border-white/10 bg-glass-surface backdrop-blur-xl">
+    <header className="relative z-50 border-b border-border bg-card/95 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between px-6">
-        {/* Logo and Brand */}
+        {/* Logo */}
         <div className="flex items-center gap-3">
           <img
             src="/assets/matabumi-logo.png"
             alt="MataBumi"
             className="h-8 w-8"
           />
-          <div>
-            <h1 className="text-lg font-semibold text-mist-white">MataBumi</h1>
-            <p className="text-xs text-mist-white/60">
-              Indonesia Deforestation Monitoring
-            </p>
-          </div>
+          <h1 className="text-lg font-semibold text-foreground">MataBumi</h1>
         </div>
 
-        {/* Navigation */}
-        <nav className="hidden items-center gap-6 md:flex">
-          <a
-            href="#dashboard"
-            className="text-sm font-medium text-mist-white transition-colors hover:text-canopy-green"
-          >
-            Dashboard
-          </a>
-          <a
-            href="#data"
-            className="text-sm font-medium text-mist-white/70 transition-colors hover:text-mist-white"
-          >
-            Data
-          </a>
-          <a
-            href="#methodology"
-            className="text-sm font-medium text-mist-white/70 transition-colors hover:text-mist-white"
-          >
-            Methodology
-          </a>
-          <a
-            href="#about"
-            className="text-sm font-medium text-mist-white/70 transition-colors hover:text-mist-white"
+        {/* Navigation - Center */}
+        <nav className="flex items-center gap-6">
+          <button
+            onClick={() => onViewChange('about')}
+            className={`text-sm font-medium transition-colors ${
+              currentView === 'about'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-primary'
+            }`}
           >
             About
-          </a>
+          </button>
+          <button
+            onClick={() => onViewChange('dashboard')}
+            className={`text-sm font-medium transition-colors ${
+              currentView === 'dashboard'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-primary'
+            }`}
+          >
+            Dashboard
+          </button>
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
-          {/* Search */}
-          <button
-            className="rounded-lg p-2 text-mist-white/70 transition-colors hover:bg-white/5 hover:text-mist-white"
-            aria-label="Search"
-          >
-            <Search size={18} />
-          </button>
-
           {/* Loading Indicator */}
           {loading && (
-            <RefreshCw className="animate-spin text-canopy-green" size={18} />
+            <RefreshCw className="animate-spin text-primary" size={18} />
           )}
 
           {/* Theme Toggle */}
           <button
             onClick={onThemeToggle}
-            className="rounded-lg p-2 text-mist-white/70 transition-colors hover:bg-white/5 hover:text-mist-white"
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
