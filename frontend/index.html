@@ -29,6 +29,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Initialize theme before React loads
+      const theme = localStorage.getItem('matabumi-theme') || 'dark';
+      document.documentElement.classList.add(theme);
+      
+      // Catch and log errors
+      window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        document.getElementById('root').innerHTML = '<div style="color: white; padding: 20px; font-family: sans-serif;"><h1>Error Loading App</h1><p>' + e.message + '</p><p>Check console for details (F12)</p></div>';
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
