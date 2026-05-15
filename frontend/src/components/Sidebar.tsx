@@ -120,7 +120,7 @@ export default function Sidebar({ filters, language, stats, provinceStats, onFil
                           <span className="flex-1">{severityLabels[language][severity]}</span>
                         </label>
                         <Badge variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                          {stats?.by_severity[severity] ?? 0}
+                          {stats?.by_severity?.[severity] ?? 0}
                         </Badge>
                       </div>
                     ))}
@@ -175,7 +175,7 @@ export default function Sidebar({ filters, language, stats, provinceStats, onFil
                           <span className="flex-1">{causeLabels[language][cause]}</span>
                         </label>
                         <Badge variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                          {stats?.by_cause[cause] ?? 0}
+                          {stats?.by_cause?.[cause] ?? 0}
                         </Badge>
                       </div>
                     ))}

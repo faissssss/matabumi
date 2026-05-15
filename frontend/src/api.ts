@@ -15,11 +15,21 @@ export function thumbnailUrl(path?: string | null) {
 const MOCK_STATS: NationalStats = {
   total_events: 0,
   total_area_ha: 0,
-  critical_events: 0,
-  high_events: 0,
-  moderate_events: 0,
-  low_events: 0,
-  protected_area_events: 0,
+  by_severity: {
+    critical: 0,
+    high: 0,
+    moderate: 0,
+    low: 0,
+  },
+  by_cause: {
+    logging: 0,
+    plantation: 0,
+    mining: 0,
+    fire: 0,
+    unknown: 0,
+  },
+  protected_zone_breaches: 0,
+  latest_update: new Date().toISOString(),
 };
 
 // Helper to check if we're in production without backend
