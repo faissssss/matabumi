@@ -29,14 +29,14 @@ def get_alerts(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/stats/provinces", response_model=List[Dict])
+@router.get("/provinces", response_model=List[Dict])
 def get_province_stats():
     try:
         return db.query_province_stats()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/stats/national", response_model=Dict)
+@router.get("/stats", response_model=Dict)
 def get_national_stats():
     try:
         return db.query_national_stats()
@@ -49,3 +49,12 @@ def get_trends(province: Optional[str] = None):
         return db.query_trends(province)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Keep old endpoints for backward compatibility
+@router.get("/stats/provinces", response_model=List[Dict])
+def get_province_stats_old():
+    return get_province_stats()
+
+@router.get("/stats/national", response_model=Dict)
+def get_national_stats_old():
+    return get_national_stats()
