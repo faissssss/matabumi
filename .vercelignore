@@ -1,13 +1,8 @@
 # Python and backend
 *.py
-backend/
 pipeline/
 detection/
-database/
 tests/
-*.db
-*.db-journal
-requirements.txt
 
 # Root-level data and outputs only (not frontend/src/data)
 /data/
