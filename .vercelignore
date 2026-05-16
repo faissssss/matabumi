@@ -1,30 +1,26 @@
-# Python and backend
-*.py
-backend/
-pipeline/
-detection/
-database/
-tests/
-*.db
-*.db-journal
-requirements.txt
-
-# Root-level data and outputs only (not frontend/src/data)
-/data/
-/outputs/
-/test_artifacts/
-
-# Documentation
-*.md
-!README.md
-
-# Config and temp files
-.env
-.env.local
+# Python cache and temp files (but keep .py files for serverless functions)
 .pytest_cache/
 .hypothesis/
 __pycache__/
 *.pyc
+*.db-journal
+
+# Exclude these directories (not needed for deployment)
+pipeline/
+detection/
+tests/
+test_artifacts/
+
+# Root-level data and outputs only (not frontend/src/data)
+/data/
+/outputs/
+
+# Documentation (except README)
+*.md
+!README.md
+
+# Config and temp files
+.env.local
 
 # IDE
 .vscode/

@@ -8,7 +8,9 @@ export const api = axios.create({ baseURL: API_BASE_URL });
 export function thumbnailUrl(path?: string | null) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `${API_BASE_URL}${path}`;
+  // Remove /api prefix from path if base URL already includes it
+  const cleanPath = path.startsWith('/api/') ? path.substring(4) : path;
+  return `${API_BASE_URL}${cleanPath}`;
 }
 
 // Mock data for when backend is not available
@@ -39,7 +41,7 @@ const isProductionWithoutBackend = () => {
 
 export async function fetchAlerts(filters: Filters): Promise<Alert[]> {
   try {
-    const response = await api.get<Alert[]>('/api/alerts', {
+    const response = await api.get<Alert[]>('/alerts', {
       params: {
         province: filters.province || undefined,
         severity: filters.severities.length === 1 ? filters.severities[0] : undefined,
@@ -62,7 +64,7 @@ export async function fetchAlerts(filters: Filters): Promise<Alert[]> {
 
 export async function fetchStats(): Promise<NationalStats> {
   try {
-    const response = await api.get<NationalStats>('/api/stats', { timeout: 10000 });
+    const response = await api.get<NationalStats>('/stats', { timeout: 10000 });
     return response.data;
   } catch (error) {
     console.warn('Backend not available for stats:', error);
@@ -75,7 +77,7 @@ export async function fetchStats(): Promise<NationalStats> {
 
 export async function fetchProvinceStats(): Promise<ProvinceStats[]> {
   try {
-    const response = await api.get<ProvinceStats[]>('/api/provinces', { timeout: 10000 });
+    const response = await api.get<ProvinceStats[]>('/provinces', { timeout: 10000 });
     return response.data;
   } catch (error) {
     console.warn('Backend not available for province stats:', error);
@@ -88,7 +90,7 @@ export async function fetchProvinceStats(): Promise<ProvinceStats[]> {
 
 export async function fetchTrends(province?: string): Promise<TrendPoint[]> {
   try {
-    const response = await api.get<TrendPoint[]>('/api/trends', {
+    const response = await api.get<TrendPoint[]>('/trends', {
       params: { province: province || undefined },
       timeout: 10000,
     });
@@ -101,3 +103,4 @@ export async function fetchTrends(province?: string): Promise<TrendPoint[]> {
     return [];
   }
 }
+
