@@ -1,46 +1,51 @@
-from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
-from .database_logic.db import (
-    CAUSE_TYPES,
-    SEVERITY_LEVELS,
-    query_alerts,
-    query_national_stats,
-    query_province_stats,
-    query_trends,
-)
+from typing import List, Dict, Optional
+from fastapi import APIRouter, Query, HTTPException
+try:
+    from api.database_logic import db
+except ImportError:
+    from database_logic import db
 
-router = APIRouter(prefix="", tags=["matabumi"])
+router = APIRouter()
 
-@router.get("/health")
-def health_check() -> dict:
-    return {"status": "ok", "service": "matabumi-api"}
-
-@router.get("/alerts")
+@router.get("/alerts", response_model=List[Dict])
 def get_alerts(
     province: Optional[str] = None,
-    severity: Optional[str] = Query(default=None),
-    cause: Optional[str] = Query(default=None),
+    severity: Optional[str] = None,
+    cause: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    limit: int = Query(default=100, ge=1, le=500),
-) -> list[dict]:
-    return query_alerts({
+    limit: int = Query(100, ge=1, le=500)
+):
+    filters = {
         "province": province,
         "severity": severity,
         "cause": cause,
         "start_date": start_date,
         "end_date": end_date,
-        "limit": limit,
-    })
+        "limit": limit
+    }
+    try:
+        return db.query_alerts(filters)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/provinces")
-def get_provinces() -> list[dict]:
-    return query_province_stats()
+@router.get("/stats/provinces", response_model=List[Dict])
+def get_province_stats():
+    try:
+        return db.query_province_stats()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/stats")
-def get_stats() -> dict:
-    return query_national_stats()
+@router.get("/stats/national", response_model=Dict)
+def get_national_stats():
+    try:
+        return db.query_national_stats()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/trends")
-def get_trends(province: Optional[str] = None) -> list[dict]:
-    return query_trends(province)
+@router.get("/trends", response_model=List[Dict])
+def get_trends(province: Optional[str] = None):
+    try:
+        return db.query_trends(province)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
