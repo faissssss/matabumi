@@ -9,7 +9,7 @@ from .database_logic.db import (
     query_trends,
 )
 
-router = APIRouter(prefix="/api", tags=["matabumi"])
+router = APIRouter(prefix="", tags=["matabumi"])
 
 @router.get("/health")
 def health_check() -> dict:
