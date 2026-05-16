@@ -4,21 +4,10 @@
   "outputDirectory": "frontend/dist",
   "installCommand": "echo 'Skipping root install'",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "python3.9",
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/api/thumbnails/(.*)",
-      "dest": "/api/thumbnails/[filename].py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     }
   ],
   "headers": [
@@ -48,6 +37,5 @@
         }
       ]
     }
-  ],
-  "rewrites": []
+  ]
 }

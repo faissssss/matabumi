@@ -1,4 +1,10 @@
-# Python cache and temp files (but keep .py files for serverless functions)
+# Python and backend
+# Allow api directory for Vercel functions
+!api/
+!api/*.py
+!api/**/*.py
+
+# Python cache and temp files
 .pytest_cache/
 .hypothesis/
 __pycache__/
@@ -20,6 +26,7 @@ test_artifacts/
 !README.md
 
 # Config and temp files
+.env
 .env.local
 
 # IDE
