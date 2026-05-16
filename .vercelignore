@@ -3,6 +3,7 @@
 !api/
 !api/*.py
 !api/**/*.py
+!api/database/*.db
 
 # Python cache and temp files
 .pytest_cache/
