@@ -8,27 +8,36 @@ from typing import Optional, Dict, List
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Use absolute path for Vercel environment
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), "../database/matabumi.db")
+# Try multiple paths for database (Vercel serverless environment)
+def get_database_path():
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "../database/matabumi.db"),
+        os.path.join(os.getcwd(), "api/database/matabumi.db"),
+        "/var/task/api/database/matabumi.db",  # Vercel Lambda path
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            logger.info(f"Found database at: {path}")
+            return path
+    
+    # If no database found, return first path (will create error with helpful message)
+    logger.error(f"Database not found. Tried: {possible_paths}")
+    return possible_paths[0]
+
+DATABASE_PATH = get_database_path()
 
 SEVERITY_LEVELS = ("low", "moderate", "high", "critical")
 CAUSE_TYPES = ("logging", "plantation", "mining", "fire", "unknown")
 
 def get_connection() -> sqlite3.Connection:
-    if not os.path.exists(DATABASE_PATH):
-        logger.error(f"Database not found at {DATABASE_PATH}")
-        # Try to find it in the current directory or parent
-        alt_path = os.path.join(os.getcwd(), "api/database/matabumi.db")
-        if os.path.exists(alt_path):
-            logger.info(f"Found database at alternative path: {alt_path}")
-            conn = sqlite3.connect(alt_path)
-        else:
-            raise FileNotFoundError(f"SQLite database not found at {DATABASE_PATH} or {alt_path}")
-    else:
+    try:
         conn = sqlite3.connect(DATABASE_PATH)
-    
-    conn.row_factory = sqlite3.Row
-    return conn
+        conn.row_factory = sqlite3.Row
+        return conn
+    except Exception as e:
+        logger.error(f"Failed to connect to database at {DATABASE_PATH}: {e}")
+        raise
 
 def _thumbnail_url(thumbnail_path: Optional[str]) -> Optional[str]:
     if not thumbnail_path:

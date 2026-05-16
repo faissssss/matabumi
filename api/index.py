@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
+
 try:
     from api.routes import router
 except ImportError:
@@ -13,8 +15,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Include router with /api prefix
-app.include_router(router, prefix="/api")
-@app.get("/api/health")
+
+# Include router WITHOUT /api prefix (Vercel already routes /api/* here)
+app.include_router(router)
+
+@app.get("/health")
 def health():
     return {"status": "ok", "service": "matabumi-api"}
+
+# Mangum handler for Vercel
+handler = Mangum(app, lifespan="off")

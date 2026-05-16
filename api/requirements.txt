@@ -1,24 +1,8 @@
-# MataBumi Deforestation Monitoring System - Python Dependencies
-
-# Core scientific computing
-numpy==1.26.4
-scipy==1.12.0
-matplotlib==3.8.3
-Pillow==10.2.0
-
-# Satellite imagery access
-planetary-computer==1.0.0
-pystac-client==0.7.7
-stackstac==0.5.1
-
-# Environment and configuration
-python-dotenv==1.0.1
+# MataBumi API Dependencies for Vercel Serverless
 
 # Web framework and API
 fastapi==0.110.0
-uvicorn==0.27.1
-httpx==0.27.0
+mangum==0.17.0
 
-# Testing
-pytest==8.0.2
-hypothesis==6.98.15
+# No other dependencies needed for API endpoints
+# (numpy, scipy, etc. are only for data pipeline, not API)
