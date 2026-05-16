@@ -16,10 +16,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include router WITHOUT /api prefix (Vercel already routes /api/* here)
-app.include_router(router)
+# Include router WITH /api prefix to match Vercel routing
+app.include_router(router, prefix="/api")
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     return {"status": "ok", "service": "matabumi-api"}
 
