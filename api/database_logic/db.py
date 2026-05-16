@@ -92,7 +92,7 @@ def query_alerts(filters: Dict) -> List[Dict]:
 def query_province_stats() -> List[Dict]:
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(\"\"\"
+    cursor.execute("""
         WITH cause_counts AS (
             SELECT
                 province,
@@ -118,7 +118,7 @@ def query_province_stats() -> List[Dict]:
             AND cause_counts.cause_rank = 1
         GROUP BY alerts.province, cause_counts.cause
         ORDER BY total_area_ha DESC
-    \"\"\")
+    """)
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]
@@ -126,23 +126,23 @@ def query_province_stats() -> List[Dict]:
 def query_national_stats() -> Dict:
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(\"\"\"
+    cursor.execute("""
         SELECT 
             SUM(area_ha) as total_area_ha,
             COUNT(*) as total_events,
             SUM(is_protected_zone) as protected_breaches
         FROM deforestation_alerts
-    \"\"\")
+    """)
     row = cursor.fetchone()
     stats = dict(row)
     stats["total_area_ha"] = stats.get("total_area_ha") or 0.0
     stats["total_events"] = stats.get("total_events") or 0
     stats["protected_zone_breaches"] = stats.pop("protected_breaches") or 0
-    cursor.execute(\"\"\"
+    cursor.execute("""
         SELECT severity, COUNT(*) as count
         FROM deforestation_alerts
         GROUP BY severity
-    \"\"\")
+    """)
     severity_breakdown = {level: 0 for level in SEVERITY_LEVELS}
     severity_breakdown.update({
         row["severity"]: row["count"]
@@ -150,11 +150,11 @@ def query_national_stats() -> Dict:
         if row["severity"] in SEVERITY_LEVELS
     })
     stats["by_severity"] = severity_breakdown
-    cursor.execute(\"\"\"
+    cursor.execute("""
         SELECT cause, COUNT(*) as count
         FROM deforestation_alerts
         GROUP BY cause
-    \"\"\")
+    """)
     cause_breakdown = {cause: 0 for cause in CAUSE_TYPES}
     cause_breakdown.update({
         row["cause"]: row["count"]
@@ -169,13 +169,13 @@ def query_national_stats() -> Dict:
 def query_trends(province: Optional[str] = None) -> List[Dict]:
     conn = get_connection()
     cursor = conn.cursor()
-    query = \"\"\"
+    query = """
         SELECT 
             strftime('%Y-%m', detected_at) as month,
             SUM(area_ha) as area_ha,
             COUNT(*) as event_count
         FROM deforestation_alerts
-    \"\"\"
+    """
     params = []
     if province:
         query += " WHERE province = ?"
