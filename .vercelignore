@@ -1,5 +1,9 @@
 # Python and backend
-*.py
+# Allow api directory for Vercel functions
+!api/
+!api/*.py
+!api/**/*.py
+
 pipeline/
 detection/
 tests/
