@@ -3,9 +3,17 @@
 Fix Supabase RLS for deforestation_alerts table
 Enables RLS and adds public read policy
 """
+import os
 import psycopg2
 
-SUPABASE_URL = "postgresql://postgres.ewusmeywikyfnapvxkcr:matabumi2026@aws-1-ap-south-1.pooler.supabase.com:6543/postgres"
+SUPABASE_URL = os.getenv("SUPABASE_DB_URL")
+
+if not SUPABASE_URL:
+    raise ValueError(
+        "SUPABASE_DB_URL environment variable not set!\n"
+        "Set it with: export SUPABASE_DB_URL='postgresql://...'"
+    )
+
 
 def fix_rls():
     print("🔒 Fixing Supabase RLS for deforestation_alerts...\n")

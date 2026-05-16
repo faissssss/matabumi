@@ -2,6 +2,7 @@
 """
 Migrate MataBumi data from SQLite to Supabase PostgreSQL
 """
+import os
 import sqlite3
 import psycopg2
 import psycopg2.extras
@@ -9,7 +10,14 @@ from datetime import datetime
 
 # Connection strings
 SQLITE_DB = "backend/database/matabumi.db"
-SUPABASE_URL = "postgresql://postgres.ewusmeywikyfnapvxkcr:matabumi2026@aws-1-ap-south-1.pooler.supabase.com:6543/postgres"
+SUPABASE_URL = os.getenv("SUPABASE_DB_URL")
+
+if not SUPABASE_URL:
+    raise ValueError(
+        "SUPABASE_DB_URL environment variable not set!\n"
+        "Set it with: export SUPABASE_DB_URL='postgresql://...'"
+    )
+
 
 def create_schema():
     """Create the deforestation_alerts table in Supabase"""
