@@ -1,6 +1,6 @@
 import os
-import sqlite3
-import time
+import psycopg2
+import psycopg2.extras
 import logging
 from datetime import datetime
 from typing import Optional, Dict, List
@@ -8,35 +8,23 @@ from typing import Optional, Dict, List
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Try multiple paths for database (Vercel serverless environment)
-def get_database_path():
-    possible_paths = [
-        os.path.join(os.path.dirname(__file__), "../database/matabumi.db"),
-        os.path.join(os.getcwd(), "api/database/matabumi.db"),
-        "/var/task/api/database/matabumi.db",  # Vercel Lambda path
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            logger.info(f"Found database at: {path}")
-            return path
-    
-    # If no database found, return first path (will create error with helpful message)
-    logger.error(f"Database not found. Tried: {possible_paths}")
-    return possible_paths[0]
+# Supabase PostgreSQL connection (pooler for serverless)
+DATABASE_URL = os.getenv("SUPABASE_DB_URL")
 
-DATABASE_PATH = get_database_path()
+if not DATABASE_URL:
+    logger.error("SUPABASE_DB_URL environment variable not set!")
+    raise ValueError("SUPABASE_DB_URL environment variable is required")
 
 SEVERITY_LEVELS = ("low", "moderate", "high", "critical")
 CAUSE_TYPES = ("logging", "plantation", "mining", "fire", "unknown")
 
-def get_connection() -> sqlite3.Connection:
+def get_connection():
+    """Get PostgreSQL connection using Supabase pooler"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
-        conn.row_factory = sqlite3.Row
+        conn = psycopg2.connect(DATABASE_URL)
         return conn
     except Exception as e:
-        logger.error(f"Failed to connect to database at {DATABASE_PATH}: {e}")
+        logger.error(f"Failed to connect to Supabase: {e}")
         raise
 
 def _thumbnail_url(thumbnail_path: Optional[str]) -> Optional[str]:
@@ -45,7 +33,7 @@ def _thumbnail_url(thumbnail_path: Optional[str]) -> Optional[str]:
     filename = os.path.basename(thumbnail_path.replace("\\", "/"))
     return f"/api/thumbnails/{filename}"
 
-def _format_alert(row: sqlite3.Row) -> Dict:
+def _format_alert(row: Dict) -> Dict:
     alert = dict(row)
     alert["bbox"] = [
         alert.pop("bbox_minx"),
@@ -58,23 +46,23 @@ def _format_alert(row: sqlite3.Row) -> Dict:
 
 def query_alerts(filters: Dict) -> List[Dict]:
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     query = "SELECT * FROM deforestation_alerts WHERE 1=1"
     params = []
     if filters.get("province"):
-        query += " AND province = ?"
+        query += " AND province = %s"
         params.append(filters["province"])
     if filters.get("severity"):
-        query += " AND severity = ?"
+        query += " AND severity = %s"
         params.append(filters["severity"])
     if filters.get("cause"):
-        query += " AND cause = ?"
+        query += " AND cause = %s"
         params.append(filters["cause"])
     if filters.get("start_date"):
-        query += " AND detected_at >= ?"
+        query += " AND detected_at >= %s"
         params.append(filters["start_date"])
     if filters.get("end_date"):
-        query += " AND detected_at <= ?"
+        query += " AND detected_at <= %s"
         params.append(filters["end_date"])
     query += " ORDER BY detected_at DESC"
     try:
@@ -82,7 +70,7 @@ def query_alerts(filters: Dict) -> List[Dict]:
     except (TypeError, ValueError):
         limit = 100
     limit = max(1, min(limit, 500))
-    query += " LIMIT ?"
+    query += " LIMIT %s"
     params.append(limit)
     cursor.execute(query, params)
     rows = cursor.fetchall()
@@ -91,7 +79,7 @@ def query_alerts(filters: Dict) -> List[Dict]:
 
 def query_province_stats() -> List[Dict]:
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("""
         WITH cause_counts AS (
             SELECT
@@ -125,7 +113,7 @@ def query_province_stats() -> List[Dict]:
 
 def query_national_stats() -> Dict:
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("""
         SELECT 
             SUM(area_ha) as total_area_ha,
@@ -168,17 +156,17 @@ def query_national_stats() -> Dict:
 
 def query_trends(province: Optional[str] = None) -> List[Dict]:
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     query = """
         SELECT 
-            strftime('%Y-%m', detected_at) as month,
+            TO_CHAR(detected_at, 'YYYY-MM') as month,
             SUM(area_ha) as area_ha,
             COUNT(*) as event_count
         FROM deforestation_alerts
     """
     params = []
     if province:
-        query += " WHERE province = ?"
+        query += " WHERE province = %s"
         params.append(province)
     query += " GROUP BY month ORDER BY month"
     cursor.execute(query, params)

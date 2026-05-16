@@ -4,5 +4,5 @@
 fastapi==0.110.0
 mangum==0.17.0
 
-# No other dependencies needed for API endpoints
-# (numpy, scipy, etc. are only for data pipeline, not API)
+# PostgreSQL adapter for Supabase
+psycopg2-binary==2.9.9
