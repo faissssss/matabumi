@@ -312,6 +312,23 @@ def run_multi_year_pipeline(provinces: List[str] = None, years: List[int] = None
     logger.info(f"   - Duration: {duration}")
     logger.info(f"   - Average per combination: {duration / total_combinations if total_combinations > 0 else 0}")
     logger.info(f"{'='*60}\n")
+    
+    # Upload thumbnails to Supabase Storage (if configured)
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
+    
+    if supabase_url and supabase_key:
+        logger.info(f"\n📤 Uploading thumbnails to Supabase Storage...")
+        try:
+            from pipeline.upload_thumbnails import upload_thumbnails
+            upload_thumbnails()
+        except Exception as e:
+            logger.error(f"❌ Failed to upload thumbnails: {e}")
+            logger.error(f"   Thumbnails are saved locally in outputs/thumbnails/")
+    else:
+        logger.info(f"\n⚠️  Supabase not configured, skipping thumbnail upload")
+        logger.info(f"   Thumbnails are saved locally in outputs/thumbnails/")
+        logger.info(f"   To enable cloud upload, set SUPABASE_URL and SUPABASE_SERVICE_KEY")
 
 
 if __name__ == "__main__":

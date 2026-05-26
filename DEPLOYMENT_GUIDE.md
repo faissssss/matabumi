@@ -171,6 +171,106 @@ If you want to deploy with a backend:
 - Theme loads instantly (no flash)
 - Error boundaries prevent crashes
 
+## 📦 Supabase Storage Setup (For Thumbnail Images)
+
+**Required for production deployment** - Thumbnail images need persistent cloud storage to work in Vercel's serverless environment.
+
+### Step 1: Create Supabase Storage Bucket
+
+1. **Go to Supabase Dashboard**: https://supabase.com/dashboard
+2. **Navigate to Storage**: Click "Storage" in the left sidebar
+3. **Create New Bucket**:
+   - Click "New Bucket" button
+   - **Name**: `thumbnails`
+   - **Public**: ✅ Enable (check "Public bucket")
+   - **File size limit**: Leave default (no limit)
+   - Click "Create Bucket"
+
+### Step 2: Configure Vercel Environment Variables
+
+Add these environment variables in Vercel Dashboard → Your Project → Settings → Environment Variables:
+
+```
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key-here
+```
+
+**Where to find these values:**
+- **SUPABASE_URL**: Supabase Dashboard → Settings → API → Project URL
+- **SUPABASE_SERVICE_KEY**: Supabase Dashboard → Settings → API → service_role key (⚠️ SECRET - never commit to Git!)
+
+**Apply to**: Production environment
+
+### Step 3: Upload Existing Thumbnails
+
+After deploying the code changes, upload your existing thumbnails:
+
+```bash
+# Set environment variables locally (or add to .env file)
+export SUPABASE_URL=https://your-project-id.supabase.co
+export SUPABASE_SERVICE_KEY=your-service-role-key-here
+
+# Run upload script
+python pipeline/upload_thumbnails.py
+```
+
+**Expected output:**
+```
+✓ Uploaded Aceh_2026-05-15_0.jpg
+✓ Uploaded Bali_2026-03-15_0.jpg
+...
+✓ Uploaded 15 thumbnails successfully
+```
+
+### Step 4: Verify Thumbnail URLs
+
+Test that thumbnails are accessible via public URLs:
+
+```
+https://your-project-id.supabase.co/storage/v1/object/public/thumbnails/Aceh_2026-05-15_0.jpg
+```
+
+**Bucket URL Format:**
+```
+https://{project-id}.supabase.co/storage/v1/object/public/thumbnails/{filename}
+```
+
+### Step 5: Redeploy to Vercel
+
+After configuring environment variables:
+
+1. Go to Vercel Dashboard → Your Project → Deployments
+2. Click **⋯** (three dots) on latest deployment
+3. Click **Redeploy**
+4. Wait for build to complete
+
+### Verification Checklist
+
+- [ ] Supabase Storage bucket "thumbnails" created and set to public
+- [ ] Environment variables added to Vercel (SUPABASE_URL, SUPABASE_SERVICE_KEY)
+- [ ] Existing thumbnails uploaded to Supabase Storage (15 files)
+- [ ] Thumbnail URLs accessible (test one URL in browser)
+- [ ] Application redeployed to Vercel
+- [ ] Thumbnails display correctly in production (no broken images)
+- [ ] Browser console shows no 404 errors for thumbnail requests
+
+### Troubleshooting Supabase Storage
+
+**Thumbnails still showing 404:**
+- Check environment variables are set correctly in Vercel
+- Verify bucket is set to "Public" in Supabase Dashboard
+- Confirm thumbnails were uploaded successfully (check Supabase Storage UI)
+- Hard refresh browser (Ctrl+Shift+R) to clear cache
+
+**Upload script fails:**
+- Verify SUPABASE_URL and SUPABASE_SERVICE_KEY are set correctly
+- Check service role key has storage permissions
+- Ensure `supabase` Python package is installed: `pip install supabase>=2.0.0`
+
+**Bucket not found error:**
+- Verify bucket name is exactly "thumbnails" (case-sensitive)
+- Check bucket was created in the correct Supabase project
+
 ## 🆘 Troubleshooting
 
 ### Dark Screen Issue (FIXED)

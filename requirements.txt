@@ -25,3 +25,6 @@ mangum==0.17.0
 # Testing
 pytest==8.0.2
 hypothesis==6.98.15
+
+# Supabase Storage (for thumbnail images in production)
+supabase>=2.0.0
