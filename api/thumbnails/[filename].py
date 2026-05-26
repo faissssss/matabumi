@@ -39,8 +39,26 @@ def handler(request, context):
     Returns:
         HTTP response dict with statusCode, headers, and body
     """
-    # Get filename from path
-    filename = request.query.get('filename', [''])[0]
+    # Get filename from path parameter (Vercel dynamic route)
+    # Try multiple ways to get the filename
+    filename = None
+    
+    # Method 1: From query parameters (Vercel Python runtime)
+    if hasattr(request, 'query') and 'filename' in request.query:
+        filename = request.query.get('filename', [''])[0] if isinstance(request.query.get('filename'), list) else request.query.get('filename')
+    
+    # Method 2: From path (alternative Vercel format)
+    if not filename and hasattr(request, 'path'):
+        # Extract filename from path like /api/thumbnails/Aceh_2026-05-15_0.jpg
+        path_parts = request.path.split('/')
+        if len(path_parts) > 0:
+            filename = path_parts[-1]
+    
+    # Method 3: From URL (fallback)
+    if not filename and hasattr(request, 'url'):
+        url_parts = request.url.split('/')
+        if len(url_parts) > 0:
+            filename = url_parts[-1].split('?')[0]  # Remove query string if present
     
     if not filename:
         return {
