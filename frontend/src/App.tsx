@@ -13,6 +13,7 @@ import Header from './components/Header';
 import AnalyticsDrawer from './components/AnalyticsDrawer';
 import DataTableView from './components/DataTableView';
 import AboutPage from './components/AboutPage';
+import DocumentationPage from './components/docs/DocumentationPage';
 import EmptyState from './components/EmptyState';
 import { translations } from './i18n';
 import type { Alert, Cause, Filters, Language, NationalStats, ProvinceStats, Severity, TrendPoint } from './types';
@@ -27,7 +28,20 @@ const initialFilters: Filters = {
 
 type ViewMode = 'map' | 'table' | 'analytics';
 type Theme = 'dark' | 'light';
-type PageView = 'dashboard' | 'about';
+type PageView = 'dashboard' | 'about' | 'docs';
+
+function getInitialPageView(): PageView {
+  if (typeof window === 'undefined') return 'dashboard';
+  if (window.location.pathname === '/about') return 'about';
+  if (window.location.pathname === '/docs') return 'docs';
+  return 'dashboard';
+}
+
+function getPathForView(view: PageView): string {
+  if (view === 'about') return '/about';
+  if (view === 'docs') return '/docs';
+  return '/';
+}
 
 export default function App() {
   const [language, setLanguage] = useState<Language>('id');
@@ -42,7 +56,7 @@ export default function App() {
   const [hasBackend, setHasBackend] = useState(false); // Default to false to avoid issues
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
-  const [currentView, setCurrentView] = useState<PageView>('dashboard');
+  const [currentView, setCurrentView] = useState<PageView>(getInitialPageView);
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem('matabumi-theme');
@@ -66,8 +80,27 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
+    const onPopState = () => setCurrentView(getInitialPageView());
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const handleViewChange = (view: PageView) => {
+    setCurrentView(view);
+    const path = getPathForView(view);
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+  };
+
+  useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (currentView !== 'dashboard') {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       try {
@@ -105,11 +138,11 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [filters]);
+  }, [filters, currentView]);
 
   const filteredAlerts = useMemo(
     () =>
-      alerts.filter(
+      (Array.isArray(alerts) ? alerts : []).filter(
         (alert) =>
           filters.severities.includes(alert.severity) &&
           filters.causes.includes(alert.cause),
@@ -131,12 +164,18 @@ export default function App() {
         onThemeToggle={toggleTheme}
         loading={loading}
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={handleViewChange}
       />
 
-      {/* Conditional Content - Dashboard or About Page */}
+      {/* Conditional Content - Dashboard, About, or Docs Page */}
       {currentView === 'about' ? (
         <AboutPage language={language} />
+      ) : currentView === 'docs' ? (
+        <DocumentationPage
+          language={language}
+          theme={theme}
+          onBackToDashboard={() => handleViewChange('dashboard')}
+        />
       ) : (
         <>
           {/* Error Banner */}
@@ -207,24 +246,24 @@ export default function App() {
 
           {/* Main View - Map, Table, or Analytics */}
           <div className="flex-1 overflow-hidden rounded-xl border border-border shadow-2xl">
-            {viewMode === 'map' && (
-              <>
-                {filteredAlerts.length > 0 ? (
-                  <DeforestationMap
-                    alerts={filteredAlerts}
-                    selectedProvince={filters.province}
-                    language={language}
-                    onSelectAlert={setSelectedAlert}
-                    theme={theme}
-                  />
-                ) : (
-                  <EmptyState 
-                    language={language} 
-                    type={hasBackend ? 'no-data' : 'no-backend'}
-                  />
-                )}
-              </>
-            )}
+            {/* Map is always mounted to prevent Leaflet re-init issues; hidden via CSS when not active */}
+            <div className={viewMode === 'map' ? 'h-full' : 'hidden'}>
+              {filteredAlerts.length > 0 ? (
+                <DeforestationMap
+                  alerts={filteredAlerts}
+                  selectedProvince={filters.province}
+                  language={language}
+                  onSelectAlert={setSelectedAlert}
+                  theme={theme}
+                  isVisible={viewMode === 'map'}
+                />
+              ) : (
+                <EmptyState
+                  language={language}
+                  type={hasBackend ? 'no-data' : 'no-backend'}
+                />
+              )}
+            </div>
             {viewMode === 'table' && (
               <>
                 {filteredAlerts.length > 0 ? (

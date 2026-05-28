@@ -1,7 +1,18 @@
 import axios from 'axios';
 import type { Alert, Filters, NationalStats, ProvinceStats, TrendPoint } from './types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000';
+function resolveApiBaseUrl() {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  const isLocalBrowser =
+    typeof window !== 'undefined' &&
+    ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+  if (!configured) return 'http://127.0.0.1:8000/api';
+  if (configured === '/api' && isLocalBrowser) return 'http://127.0.0.1:8000/api';
+  return configured;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 export const api = axios.create({ baseURL: API_BASE_URL });
 
@@ -103,4 +114,3 @@ export async function fetchTrends(province?: string): Promise<TrendPoint[]> {
     return [];
   }
 }
-

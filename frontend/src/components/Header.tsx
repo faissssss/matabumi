@@ -8,8 +8,8 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   onThemeToggle: () => void;
   loading: boolean;
-  currentView: 'dashboard' | 'about';
-  onViewChange: (view: 'dashboard' | 'about') => void;
+  currentView: 'dashboard' | 'about' | 'docs';
+  onViewChange: (view: 'dashboard' | 'about' | 'docs') => void;
 }
 
 export default function Header({
@@ -23,7 +23,7 @@ export default function Header({
 }: HeaderProps) {
   return (
     <header className="relative z-50 border-b border-border bg-card/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-3 px-4 sm:px-6">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img
@@ -31,11 +31,11 @@ export default function Header({
             alt="MataBumi"
             className="h-8 w-8"
           />
-          <h1 className="text-lg font-semibold text-foreground">MataBumi</h1>
+          <h1 className="text-base font-semibold text-foreground sm:text-lg">MataBumi</h1>
         </div>
 
         {/* Navigation - Center */}
-        <nav className="flex items-center gap-6">
+        <nav className="hidden items-center gap-6 sm:flex">
           <button
             onClick={() => onViewChange('about')}
             className={`text-sm font-medium transition-colors ${
@@ -44,7 +44,7 @@ export default function Header({
                 : 'text-muted-foreground hover:text-primary'
             }`}
           >
-            About
+            {language === 'id' ? 'Tentang' : 'About'}
           </button>
           <button
             onClick={() => onViewChange('dashboard')}
@@ -56,10 +56,20 @@ export default function Header({
           >
             Dashboard
           </button>
+          <button
+            onClick={() => onViewChange('docs')}
+            className={`text-sm font-medium transition-colors ${
+              currentView === 'docs'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-primary'
+            }`}
+          >
+            {language === 'id' ? 'Dokumentasi' : 'Docs'}
+          </button>
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Loading Indicator */}
           {loading && (
             <RefreshCw className="animate-spin text-primary" size={18} />
